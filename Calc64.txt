@@ -1,0 +1,796 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Calculadora Binaria</title>
+<link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#050a06;--calc-bg:#0b140d;--display-bg:#060d08;--btn-number:#112215;--btn-number-hover:#193320;--btn-operator:#153b22;--btn-operator-hover:#1e5230;--btn-equals:#1e7033;--btn-equals-hover:#278c42;--btn-clear:#7c1a2a;--btn-clear-hover:#9c2336;--btn-paren:#1b2e21;--btn-paren-hover:#25402e;--btn-adv:#193025;--btn-adv-hover:#224233;--btn-var:#1c3620;--btn-var-hover:#264a2c;--btn-colon:#162b1b;--btn-colon-hover:#1e3b25;--btn-at:#1a3320;--btn-at-hover:#24472c;--btn-plot:#1a4a2a;--btn-plot-hover:#246338;--btn-trig:#142e1d;--btn-trig-hover:#1c4028;--btn-bit:#173627;--btn-bit-hover:#204a36;--btn-math:#1a3d2c;--btn-math-hover:#245038;--btn-matrix:#1c2f28;--btn-matrix-hover:#264538;--btn-cad:#1a3d2c;--btn-cad-hover:#245038;--btn-ini:#2a4a2a;--btn-ini-hover:#356035;--btn-cr:#2a4020;--btn-cr-hover:#3a5530;--btn-hist:#1a3328;--btn-hist-hover:#264a38;--btn-invtrig:#152e20;--btn-invtrig-hover:#1e402a;--btn-hyper:#163025;--btn-hyper-hover:#1f4235;--btn-solve:#1a3528;--btn-solve-hover:#244a38;--btn-logb:#183820;--btn-logb-hover:#224e2c;--btn-export-img:#1a3a28;--btn-export-img-hover:#245038;--btn-settings:#1a3025;--btn-settings-hover:#264838;--text-primary:#e0f2e6;--text-display:#4ade80;--text-display-dec:#86a38f;--text-equals:#bbf7d0;--text-clear:#ff8b82;--text-operator:#86efac;--text-paren:#6ee7b7;--text-adv:#a7f3d0;--text-var:#d1fae5;--text-colon:#a3e635;--text-at:#bef264;--text-plot:#d9f99d;--text-trig:#6ee7b7;--text-invtrig:#8ef0ca;--text-hyper:#7ee8c0;--text-math:#a0f0c8;--text-matrix:#b8e6cc;--text-hist:#a7f3d0;--text-solve:#c0f0d8;--text-logb:#b0f0c0;--text-complex:#f0c080;--text-ini:#f0d080;--text-settings:#c0e0d0;--border:#1a2e20;--shadow:0 8px 32px rgba(0,20,5,0.4);--modal-bg:#0b140d;--modal-overlay:rgba(0,8,2,0.85);--btn-export:#0e2d1a;--btn-export-hover:#1a4a2a;--text-export:#a7f3d0;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{display:flex;justify-content:center;align-items:center;min-height:100vh;background:var(--bg);background-image:radial-gradient(ellipse at center,rgba(30,80,45,0.15) 0%,transparent 70%),radial-gradient(ellipse at bottom left,rgba(20,50,30,0.2) 0%,transparent 60%);font-family:'Inconsolata',monospace;-webkit-tap-highlight-color:transparent;user-select:none;padding:12px;}
+.toast-container{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;gap:10px;z-index:9999;pointer-events:none;}
+.toast{background:#112215;border:1px solid #1a2e20;color:var(--text-primary);padding:10px 20px;border-radius:8px;font-size:0.85rem;font-weight:500;box-shadow:0 4px 12px rgba(0,0,0,0.5);display:flex;align-items:center;gap:8px;animation:toast-in 0.3s cubic-bezier(0.175,0.885,0.32,1.275) forwards;pointer-events:auto;max-width:90vw;word-break:break-all;}
+.toast.success{border-color:#1e7033;color:#4ade80;}
+.toast.error{border-color:#9c2336;color:#ff8b82;}
+.toast.info{border-color:#1a4a2a;color:#a7f3d0;}
+.toast.ini-toast{border-color:#b08030;color:#f0d080;}
+.toast.settings-toast{border-color:#4a8a5a;color:#c0e0d0;}
+.toast.closing{animation:toast-out 0.3s ease-in forwards;}
+@keyframes toast-in{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+@keyframes toast-out{from{opacity:1;transform:translateY(0);}to{opacity:0;transform:translateY(20px);}}
+.calculator-wrapper{background:var(--calc-bg);border-radius:20px;padding:20px;box-shadow:var(--shadow),0 0 0 1px var(--border);width:580px;max-width:98vw;display:flex;flex-direction:column;gap:10px;}
+.header{display:flex;align-items:center;justify-content:space-between;padding:0 4px;flex-wrap:wrap;gap:6px;}
+.header .title{color:var(--text-primary);font-size:1rem;font-weight:700;letter-spacing:0.5px;white-space:nowrap;}
+.header .controls{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+.header .badge{background:#112215;color:var(--text-display);font-size:0.6rem;font-weight:600;padding:4px 8px;border-radius:16px;letter-spacing:0.8px;text-transform:uppercase;border:1px solid #1a2e20;cursor:pointer;transition:all 0.2s;outline:none;white-space:nowrap;}
+.header .badge:hover{background:#193320;border-color:#315e38;}
+.header .badge.stop{background:#7c1a2a;color:#ff8b82;border-color:#9c2336;}
+.header .badge.stop:hover{background:#9c2336;}
+.header .badge.hist-badge{color:var(--text-hist);border-color:#1e3b28;}
+.header .badge.hist-badge:hover{background:#1a3328;border-color:#2a4a38;}
+.header .badge.settings-badge{color:var(--text-settings);border-color:#2a4a38;}
+.header .badge.settings-badge:hover{background:#1a3025;border-color:#3a5e48;}
+.display-container{background:var(--display-bg);border-radius:14px;padding:12px 18px;border:2px solid var(--border);min-height:80px;display:flex;flex-direction:column;justify-content:center;position:relative;}
+.display-container .expression{color:#5f806a;font-size:0.8rem;text-align:right;min-height:20px;letter-spacing:1px;word-break:break-all;line-height:1.3;}
+.display-container .result-wrapper{display:flex;flex-direction:column;align-items:flex-end;justify-content:flex-end;}
+.display-container .result{color:var(--text-display);font-size:1.6rem;font-weight:700;text-align:right;letter-spacing:2px;word-break:break-all;font-family:'Inconsolata',monospace;line-height:1.2;text-shadow:0 0 25px rgba(74,222,128,0.35);white-space:pre-wrap;}
+.display-container .result-dec{color:var(--text-display-dec);font-size:0.7rem;text-align:right;font-family:'Inconsolata',monospace;margin-top:2px;}
+.display-container.error .result{color:#ff8b82;text-shadow:0 0 20px rgba(255,139,130,0.4);animation:shake 0.5s ease;}
+.display-container.error .result-dec{display:none;}
+.display-container.complex-mode .result{color:#f0c080;text-shadow:0 0 20px rgba(240,192,128,0.4);}
+.display-container.complex-mode .result-dec{color:#c0a070;}
+.display-container.ini-mode .result{color:#f0d080;text-shadow:0 0 20px rgba(240,208,128,0.4);}
+@keyframes shake{0%,100%{transform:translateX(0);}20%{transform:translateX(-6px);}60%{transform:translateX(4px);}}
+
+/* ACORDEON STYLES */
+.accordion-container { display: flex; flex-direction: column; gap: 6px; width: 100%; }
+.accordion-section { border: 1px solid var(--border); border-radius: 10px; background: var(--display-bg); overflow: hidden; }
+.accordion-header { background: var(--btn-adv); color: var(--text-primary); padding: 8px 12px; font-size: 0.85rem; font-weight: 700; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: background 0.2s; font-family: 'Inconsolata', monospace; }
+.accordion-header:hover { background: var(--btn-adv-hover); }
+.accordion-header::after { content: '▼'; font-size: 0.7rem; transition: transform 0.3s ease; }
+.accordion-section.active .accordion-header::after { transform: rotate(-180deg); }
+.accordion-body { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; padding: 0; max-height: 0; opacity: 0; transition: all 0.3s ease-in-out; }
+.accordion-section.active .accordion-body { padding: 8px; max-height: 500px; opacity: 1; }
+
+button{border:none;border-radius:10px;padding:9px 3px;font-size:0.82rem;font-weight:600;cursor:pointer;transition:all 0.15s ease;letter-spacing:0.5px;outline:none;font-family:'Inconsolata',monospace;border:1px solid transparent;background:var(--btn-number);color:var(--text-primary);}
+button:active{transform:scale(0.94);}
+.btn-number{background:var(--btn-number);border-color:#1a2e20;font-size:1rem;}
+.btn-number:hover{background:var(--btn-number-hover);}
+.btn-operator{background:var(--btn-operator);color:var(--text-operator);font-size:1rem;}
+.btn-operator:hover{background:var(--btn-operator-hover);}
+.btn-equals{background:var(--btn-equals);color:var(--text-equals);font-size:1rem;font-weight:700;border:1px solid #278c42;}
+.btn-equals:hover{background:var(--btn-equals-hover);}
+.btn-clear{background:var(--btn-clear);color:var(--text-clear);font-weight:700;}
+.btn-clear:hover{background:var(--btn-clear-hover);}
+.btn-paren{background:var(--btn-paren);color:var(--text-paren);font-size:0.95rem;}
+.btn-paren:hover{background:var(--btn-paren-hover);}
+.btn-adv{background:var(--btn-adv);color:var(--text-adv);}
+.btn-adv:hover{background:var(--btn-adv-hover);}
+.btn-var{background:var(--btn-var);color:var(--text-var);font-weight:600;font-size:0.75rem;}
+.btn-var:hover{background:var(--btn-var-hover);}
+.btn-colon{background:var(--btn-colon);color:var(--text-colon);font-weight:700;font-size:0.95rem;}
+.btn-colon:hover{background:var(--btn-colon-hover);}
+.btn-at{background:var(--btn-at);color:var(--text-at);font-weight:700;font-size:0.95rem;}
+.btn-at:hover{background:var(--btn-at-hover);}
+.btn-plot{background:var(--btn-plot);color:var(--text-plot);font-weight:700;font-size:0.8rem;border:1px solid #295232;}
+.btn-plot:hover{background:var(--btn-plot-hover);}
+.btn-trig{background:var(--btn-trig);color:var(--text-trig);font-weight:600;font-size:0.75rem;padding:7px 3px;}
+.btn-trig:hover{background:var(--btn-trig-hover);}
+.btn-invtrig{background:var(--btn-invtrig);color:var(--text-invtrig);font-weight:600;font-size:0.72rem;padding:7px 3px;border:1px solid #1e3d2a;}
+.btn-invtrig:hover{background:var(--btn-invtrig-hover);border-color:#2a5a3a;}
+.btn-hyper{background:var(--btn-hyper);color:var(--text-hyper);font-weight:600;font-size:0.72rem;padding:7px 3px;border:1px solid #1e3d2a;}
+.btn-hyper:hover{background:var(--btn-hyper-hover);border-color:#2a5a3a;}
+.btn-bit{background:var(--btn-bit);color:#86efac;font-size:0.8rem;}
+.btn-bit:hover{background:var(--btn-bit-hover);}
+.btn-backspace{background:#16261b;color:#ff8b82;font-weight:700;}
+.btn-backspace:hover{background:#1e3625;}
+.btn-math{background:var(--btn-math);color:var(--text-math);font-weight:700;font-size:0.78rem;border:1px solid #2a4a38;}
+.btn-math:hover{background:var(--btn-math-hover);border-color:#3a5e48;}
+.btn-matrix{background:var(--btn-matrix);color:var(--text-matrix);font-weight:600;font-size:0.76rem;border:1px solid #253a30;}
+.btn-matrix:hover{background:var(--btn-matrix-hover);border-color:#3a5a48;}
+.btn-cad{background:var(--btn-cad);color:#a7f3d0;font-weight:700;font-size:0.85rem;border:1px solid #2a4a38;}
+.btn-cad:hover{background:var(--btn-cad-hover);border-color:#3a5e48;}
+.btn-ini{background:var(--btn-ini);color:#f0d080;font-weight:700;font-size:0.85rem;border:1px solid #6a5530;}
+.btn-ini:hover{background:var(--btn-ini-hover);border-color:#8a7040;}
+.btn-cr{background:var(--btn-cr);color:#f0d080;font-weight:700;font-size:0.82rem;border:1px solid #6a5530;}
+.btn-cr:hover{background:var(--btn-cr-hover);border-color:#8a7040;}
+.btn-hist{background:var(--btn-hist);color:var(--text-hist);font-weight:700;font-size:0.8rem;border:1px solid #1e3b28;}
+.btn-hist:hover{background:var(--btn-hist-hover);border-color:#2a4a38;}
+.btn-special{background:#1a3d2c;color:#a0f0c8;font-weight:600;font-size:0.7rem;border:1px solid #2a4a38;}
+.btn-special:hover{background:#245038;border-color:#3a5e48;}
+.btn-solve{background:var(--btn-solve);color:var(--text-solve);font-weight:700;font-size:0.78rem;border:1px solid #2a4a38;}
+.btn-solve:hover{background:var(--btn-solve-hover);border-color:#3a5e48;}
+.btn-logb{background:var(--btn-logb);color:var(--text-logb);font-weight:700;font-size:0.78rem;border:1px solid #2a4a38;}
+.btn-logb:hover{background:var(--btn-logb-hover);border-color:#3a5e48;}
+.btn-export-img{background:var(--btn-export-img);color:#d9f99d;font-weight:700;font-size:0.78rem;border:1px solid #295232;}
+.btn-export-img:hover{background:var(--btn-export-img-hover);border-color:#3a6e48;}
+.btn-export{background:var(--btn-export);color:var(--text-export);font-weight:600;font-size:0.72rem;border:1px solid #1a4a2a;cursor:pointer;transition:all 0.15s;font-family:'Inconsolata',monospace;padding:7px 12px;border-radius:8px;white-space:nowrap;}
+.btn-export:hover{background:var(--btn-export-hover);border-color:#3a5e48;}
+.btn-ini-io{background:#1a3d2c;color:#f0d080;font-weight:700;font-size:0.72rem;border:1px solid #6a5530;}
+.btn-ini-io:hover{background:#2a5538;border-color:#8a7040;}
+.modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:var(--modal-overlay);z-index:1000;justify-content:center;align-items:center;backdrop-filter:blur(4px);}
+.modal-overlay.active{display:flex;}
+.modal{background:var(--modal-bg);border-radius:18px;padding:20px;width:640px;max-width:96vw;max-height:92vh;overflow-y:auto;box-shadow:0 16px 48px rgba(0,0,0,0.8),0 0 0 1px var(--border);display:flex;flex-direction:column;gap:14px;}
+.modal-header{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);padding-bottom:10px;}
+.modal-header h3{color:var(--text-primary);font-size:1.1rem;letter-spacing:0.5px;}
+.modal-close{background:0 0;border:1px solid #1a3320;color:var(--text-primary);font-size:1.2rem;cursor:pointer;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all 0.2s;padding:0;flex-shrink:0;}
+.modal-close:hover{background:#264a2c;border-color:#315e38;}
+.vars-list,.hist-list{display:flex;flex-direction:column;gap:8px;max-height:50vh;overflow-y:auto;}
+.empty-state{color:#5f806a;text-align:center;padding:20px;font-style:italic;font-size:0.85rem;}
+.var-item,.hist-item{display:flex;align-items:center;gap:10px;background:#060d08;border:1px solid var(--border);border-radius:10px;padding:10px 14px;transition:all 0.2s;}
+.var-item:hover,.hist-item:hover{border-color:#315e38;background:#0a1a0f;}
+.var-item .var-code{font-weight:700;color:var(--text-display);font-size:0.85rem;min-width:60px;letter-spacing:1px;}
+.var-item .var-value,.hist-item .hist-expr{flex:1;color:#86a38f;font-size:0.8rem;word-break:break-all;font-family:'Inconsolata',monospace;}
+.var-item .var-type-badge{font-size:0.6rem;padding:3px 7px;border-radius:10px;font-weight:700;letter-spacing:0.6px;text-transform:uppercase;white-space:nowrap;}
+.var-type-badge.value{background:#112215;color:#4ade80;border:1px solid #1e3b25;}
+.var-type-badge.macro{background:#1a2a15;color:#bef264;border:1px solid #2a4020;}
+.btn-insert-var-sm,.btn-delete-var{background:#112215;color:var(--text-operator);font-size:0.7rem;padding:5px 10px;border-radius:6px;cursor:pointer;border:1px solid #1a2e20;white-space:nowrap;font-family:'Inconsolata',monospace;transition:all 0.15s;font-weight:500;}
+.btn-insert-var-sm:hover{background:#193320;border-color:var(--text-display);}
+.btn-delete-var{background:#3d1018;color:#ff8b82;border-color:#5c1a26;}
+.btn-delete-var:hover{background:#5c1a26;border-color:#9c2336;}
+.vars-actions,.hist-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;align-items:center;}
+.btn-vars-action,.btn-hist-action{background:#112215;color:var(--text-primary);font-size:0.75rem;padding:8px 14px;border-radius:8px;cursor:pointer;border:1px solid #1a2e20;font-family:'Inconsolata',monospace;transition:all 0.15s;font-weight:600;white-space:nowrap;}
+.btn-vars-action:hover,.btn-hist-action:hover{background:#193320;border-color:#315e38;}
+.btn-vars-action.danger,.btn-hist-action.danger{background:#3d1018;border-color:#5c1a26;color:#ff8b82;}
+.btn-vars-action.danger:hover,.btn-hist-action.danger:hover{background:#5c1a26;border-color:#9c2336;}
+.hist-item .hist-result{color:var(--text-display);font-weight:700;font-size:0.82rem;white-space:nowrap;font-family:'Inconsolata',monospace;text-shadow:0 0 12px rgba(74,222,128,0.25);}
+.hist-item .hist-time{color:#4a6050;font-size:0.6rem;white-space:nowrap;min-width:50px;text-align:right;}
+.canvas-container{position:relative;background:#040805;border-radius:12px;border:2px solid var(--border);display:flex;justify-content:center;align-items:center;padding:0;overflow:hidden;width:100%;height:336px;}
+canvas{display:block;border-radius:10px;width:100%;height:100%;object-fit:contain;}
+.plot-controls{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;}
+.plot-controls .field{display:flex;flex-direction:column;gap:3px;}
+.plot-controls label{color:#5f806a;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.6px;font-weight:700;}
+.plot-controls input{background:#060d08;border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text-primary);font-size:0.9rem;font-family:'Inconsolata',monospace;width:100px;outline:none;transition:border 0.2s;}
+.plot-controls input:focus{border-color:var(--text-display);}
+.plot-controls input.eqn-input{width:280px;flex:2;min-width:180px;}
+.btn-graf{background:var(--btn-plot);color:var(--text-plot);font-weight:700;font-size:1rem;padding:9px 18px;border-radius:10px;cursor:pointer;border:1px solid #295232;transition:all 0.2s;white-space:nowrap;}
+.btn-graf:hover{background:var(--btn-plot-hover);border-color:#315e38;}
+.btn-insert-var{background:#112215;color:var(--text-operator);font-size:0.75rem;padding:6px 10px;border-radius:6px;cursor:pointer;border:1px solid #1a2e20;white-space:nowrap;font-family:'Inconsolata',monospace;transition:all 0.15s;font-weight:500;}
+.btn-insert-var:hover{background:#193320;border-color:var(--text-display);}
+.modal-info{color:#5f806a;font-size:0.65rem;text-align:center;letter-spacing:0.3px;margin-top:5px;}
+.manual-content{color:var(--text-primary);font-size:0.85rem;line-height:1.5;padding:5px;display:flex;flex-direction:column;gap:10px;}
+.manual-content h4{color:var(--text-display);margin-top:8px;font-size:0.95rem;border-bottom:1px dashed var(--border);padding-bottom:4px;}
+.manual-content p{color:#86a38f;font-size:0.8rem;}
+.manual-content code{background:#112215;padding:2px 6px;border-radius:4px;color:var(--text-adv);font-weight:700;border:1px solid var(--border);}
+.manual-content ul{list-style:none;padding-left:10px;}
+.manual-content li{margin-bottom:5px;position:relative;padding-left:15px;color:#86a38f;font-size:0.8rem;}
+.manual-content li::before{content:'>';position:absolute;left:0;color:var(--text-display);font-weight:700;}
+.error-type{color:#f0c080;font-weight:700;font-size:0.75rem;letter-spacing:0.5px;}
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.settings-field{display:flex;flex-direction:column;gap:3px;}
+.settings-field label{color:#86a38f;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.4px;font-weight:600;}
+.settings-field input{background:#060d08;border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text-primary);font-size:0.85rem;font-family:'Inconsolata',monospace;width:100%;outline:none;transition:border 0.2s;}
+.settings-field input:focus{border-color:var(--text-display);}
+.settings-field .hint{color:#4a6050;font-size:0.6rem;margin-top:1px;}
+.settings-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;align-items:center;margin-top:4px;}
+.btn-settings-action{background:#112215;color:var(--text-primary);font-size:0.75rem;padding:8px 14px;border-radius:8px;cursor:pointer;border:1px solid #1a2e20;font-family:'Inconsolata',monospace;transition:all 0.15s;font-weight:600;white-space:nowrap;}
+.btn-settings-action:hover{background:#193320;border-color:#315e38;}
+.btn-settings-action.primary{background:#1a4a2a;color:#4ade80;border-color:#278c42;}
+.btn-settings-action.primary:hover{background:#246338;border-color:#3a8e52;}
+.btn-settings-action.danger{background:#3d1018;border-color:#5c1a26;color:#ff8b82;}
+.btn-settings-action.danger:hover{background:#5c1a26;border-color:#9c2336;}
+@media (max-width:480px){
+.calculator-wrapper{padding:10px;width:99vw;gap:6px;}
+button{padding:7px 2px;font-size:0.7rem;}
+.display-container .result{font-size:1.2rem;}
+.modal{padding:12px;gap:8px;}
+.plot-controls input.eqn-input{width:100%;min-width:auto;}
+.plot-controls input{width:50px;}
+.canvas-container{height:220px;}
+.var-item,.hist-item{flex-wrap:wrap;gap:6px;padding:8px 10px;}
+.var-item .var-code{min-width:40px;font-size:0.75rem;}
+.var-item .var-value,.hist-item .hist-expr{font-size:0.7rem;}
+.hist-item .hist-result{font-size:0.75rem;}
+.settings-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+<div class="toast-container" id="toastContainer"></div>
+<div class="calculator-wrapper">
+<div class="header"><span class="title">Calculadora Binaria</span><div class="controls"><button class="badge" id="btnManualDoc">Manual</button><button class="badge settings-badge" id="btnSettingsBadge">Ajustes</button><button class="badge hist-badge" id="btnHistBadge">Hist</button><button class="badge" id="btnStop" style="display:none;">STOP</button><span class="badge" style="cursor:default;">Motor 2&sup1;&sup6; V4 (Complex)</span></div></div>
+<div class="display-container" id="displayContainer"><div class="expression" id="expression"></div><div class="result-wrapper"><div class="result" id="result">0</div><div class="result-dec" id="resultDec">(= 0)</div></div></div>
+
+<!-- ACORDEON -->
+<div class="accordion-container" id="keyboardAccordion">
+  <div class="accordion-section active">
+    <div class="accordion-header">Aritmética Básica</div>
+    <div class="accordion-body">
+      <button class="btn-clear" id="btnClear">C</button>
+      <button class="btn-backspace" id="btnBackspace">&larr;</button>
+      <button class="btn-paren" id="btnLeftParen">(</button>
+      <button class="btn-paren" id="btnRightParen">)</button>
+      <button class="btn-operator" id="btnDivide">&divide;</button>
+      
+      <button class="btn-number" id="btn1">1</button>
+      <button class="btn-number" id="btn0">0</button>
+      <button class="btn-number" id="btnDot">.</button>
+      <button class="btn-operator" id="btnMultiply">&times;</button>
+      <button class="btn-operator" id="btnSubtract">&minus;</button>
+      
+      <button class="btn-operator" id="btnEqualSign">=</button>
+      <button class="btn-operator" id="btnAdd">+</button>
+      <button class="btn-operator" id="btnMod">Mod</button>
+      <button class="btn-operator" id="btnPower">^</button>
+      <button class="btn-adv" id="btnSqrt">&radic;</button>
+      
+      <button class="btn-equals" id="btnEquals" style="grid-column: span 5;">Resolver / Ejecutar</button>
+    </div>
+  </div>
+
+  <div class="accordion-section">
+    <div class="accordion-header">Trigonometría y Funciones</div>
+    <div class="accordion-body">
+      <button class="btn-trig" id="btnSin">sin</button>
+      <button class="btn-trig" id="btnCos">cos</button>
+      <button class="btn-trig" id="btnTan">tan</button>
+      <button class="btn-adv" id="btnPi">&pi;</button>
+      <button class="btn-adv" id="btnE">e</button>
+      
+      <button class="btn-invtrig" id="btnAsin">asin</button>
+      <button class="btn-invtrig" id="btnAcos">acos</button>
+      <button class="btn-invtrig" id="btnAtan">atan</button>
+      <button class="btn-adv" id="btnLn">ln</button>
+      <button class="btn-adv" id="btnLog">log</button>
+
+      <button class="btn-trig" id="btnSec">sec</button>
+      <button class="btn-trig" id="btnCsc">csc</button>
+      <button class="btn-trig" id="btnCot">cot</button>
+      <button class="btn-invtrig" id="btnAsec">asec</button>
+      <button class="btn-logb" id="btnLogb">logb</button>
+
+      <button class="btn-hyper" id="btnSinh">sinh</button>
+      <button class="btn-hyper" id="btnCosh">cosh</button>
+      <button class="btn-hyper" id="btnTanh">tanh</button>
+      <button class="btn-hyper" id="btnSech">sech</button>
+      <button class="btn-adv" id="btnAbs">Abs</button>
+    </div>
+  </div>
+
+  <div class="accordion-section">
+    <div class="accordion-header">Matrices y Operadores Bit</div>
+    <div class="accordion-body">
+      <button class="btn-matrix" id="btnLBracket">[</button>
+      <button class="btn-matrix" id="btnRBracket">]</button>
+      <button class="btn-matrix" id="btnComma">,</button>
+      <button class="btn-matrix" id="btnSemicolon">;</button>
+      <button class="btn-matrix" id="btnDet">det</button>
+
+      <button class="btn-bit" id="btnAnd">&amp;</button>
+      <button class="btn-bit" id="btnOr">|</button>
+      <button class="btn-bit" id="btnXor">&oplus;</button>
+      <button class="btn-matrix" id="btnTrans">tr</button>
+      <button class="btn-matrix" id="btnInv">inv</button>
+      
+      <button class="btn-bit" id="btnShl">&lt;&lt;</button>
+      <button class="btn-bit" id="btnShr">&gt;&gt;</button>
+      <button class="btn-math" id="btnDiff">diff</button>
+      <button class="btn-math" id="btnInt">&int;</button>
+      <button class="btn-matrix" id="btnMatMul">&otimes;</button>
+    </div>
+  </div>
+
+  <div class="accordion-section">
+    <div class="accordion-header">Programación e Ini</div>
+    <div class="accordion-body">
+      <button class="btn-plot" id="btnPlot">Plot</button>
+      <button class="btn-var" id="btnVar">Var</button>
+      <button class="btn-var" id="btnVars">Vars</button>
+      <button class="btn-var" id="btnSaveVars">Grd</button>
+      <button class="btn-var" id="btnLoadVars">Car</button>
+
+      <button class="btn-at" id="btnAt">@</button>
+      <button class="btn-colon" id="btnColon">:</button>
+      <button class="btn-cad" id="btnCad">CAD</button>
+      <button class="btn-ini" id="btnIni">Ini</button>
+      <button class="btn-cr" id="btnCr">Cr</button>
+
+      <button class="btn-operator" id="btnQuote">"</button>
+      <button class="btn-operator" id="btnApos">'</button>
+      <button class="btn-math" id="btnIf">if</button>
+      <button class="btn-solve" id="btnSolve">solve</button>
+      <button class="btn-hist" id="btnHist">Hist</button>
+
+      <button class="btn-special" id="btnProd">prod</button>
+      <button class="btn-special" id="btnFloor">floor</button>
+      <button class="btn-special" id="btnCeil">ceil</button>
+      <button class="btn-special" id="btnRound">round</button>
+      <button class="btn-special" id="btnMax">max</button>
+      
+      <button class="btn-special" id="btnMin">min</button>
+      <button class="btn-special" id="btnClamp">clamp</button>
+      <button class="btn-special" id="btnSign">sign</button>
+      <button class="btn-special" id="btnGamma">gamma</button>
+      <button class="btn-special" id="btnFact">fact</button>
+      <button class="btn-special" id="btnSum" style="grid-column: span 5;">&Sigma;</button>
+      
+      <button class="btn-ini-io" id="btnDescargarIni" style="grid-column: span 2;">&#9660; Ini</button>
+      <button class="btn-ini-io" id="btnCargarIni" style="grid-column: span 3;">&#9650; Ini</button>
+    </div>
+  </div>
+</div>
+<!-- FIN ACORDEON -->
+
+</div>
+<div class="modal-overlay" id="modalOverlay"><div class="modal"><div class="modal-header"><h3>Plano Cartesiano JIT</h3><button class="modal-close" id="modalClose">X</button></div><div class="canvas-container" id="canvasContainer"><canvas id="plotCanvas"></canvas></div><div class="plot-controls"><div class="field" style="flex:2;min-width:180px;"><label>Ecuacion</label><input type="text" class="eqn-input" id="plotEquation" placeholder="@y = sin(@x)" value="@y = sin(@x)"></div><button class="btn-insert-var" id="btnInsertX">@x</button><button class="btn-insert-var" id="btnInsertY">@y</button></div><div class="plot-controls"><div class="field"><label>X min</label><input type="number" id="plotXmin" value="-10" step="any"></div><div class="field"><label>X max</label><input type="number" id="plotXmax" value="10" step="any"></div><div class="field"><label>Y min</label><input type="number" id="plotYmin" value="-10" step="any"></div><div class="field"><label>Y max</label><input type="number" id="plotYmax" value="10" step="any"></div><button class="btn-graf" id="btnGraficar">Graficar</button><button class="btn-graf" id="btnUsarDisplay" style="background:#112215;color:#4ade80;border-color:#1a2e20;">Usar display</button><button class="btn-export-img" id="btnExportPNG">Exportar PNG</button></div></div></div>
+<div class="modal-overlay" id="manualOverlay"><div class="modal"><div class="modal-header"><h3>Manual de Usuario</h3><button class="modal-close" id="manualClose">X</button></div><div class="manual-content"><h4>Sistema binario (base 2)</h4><p>El sistema binario emplea exclusivamente los digitos <code>0</code> y <code>1</code>. Cada posicion representa una potencia de 2. Por ejemplo, el numero binario <code>1101</code> equivale en decimal a:</p><p style="text-align:center"><code>1&times;2&sup3; + 1&times;2&sup2; + 0&times;2&sup1; + 1&times;2&sup0; = 8 + 4 + 0 + 1 = 13</code></p><ul><li>El bit situado mas a la izquierda posee el mayor peso (bit mas significativo).</li><li>El bit de la derecha corresponde a las unidades (2&sup0;, bit menos significativo).</li><li>Cada digito binario recibe el nombre de <strong>bit</strong> (binary digit).</li></ul><h4>Conversion entre binario y decimal</h4><p><strong>De binario a decimal:</strong> se suman las potencias de 2 en las posiciones que contienen un 1. Para numeros con parte fraccionaria, los digitos a la derecha del punto representan potencias negativas de 2 (2&supmin;&sup1;, 2&supmin;&sup2;, &hellip;). Ejemplo: <code>101.01</code> = 1&times;2&sup2; + 0&times;2&sup1; + 1&times;2&sup0; + 0&times;2&supmin;&sup1; + 1&times;2&supmin;&sup2; = 4 + 1 + 0.25 = <strong>5.25</strong>.</p><p><strong>De decimal a binario:</strong></p><ul><li><strong>Parte entera:</strong> se realizan divisiones sucesivas entre 2 y se recogen los residuos (0 o 1) en orden inverso (del ultimo al primero).</li><li><strong>Parte fraccionaria:</strong> se multiplica por 2 repetidamente; la parte entera de cada producto (0 o 1) se toma en orden directo hasta alcanzar la precision deseada o detectar un ciclo.</li></ul><p>Ejemplo: convertir 6.375 a binario. 6 -&gt; 6&divide;2=3 residuo 0, 3&divide;2=1 residuo 1, 1&divide;2=0 residuo 1 -&gt; <code>110</code>. 0.375 &times;2=0.75 (0), 0.75&times;2=1.5 (1), 0.5&times;2=1.0 (1) -&gt; <code>.011</code>. Resultado: <code>110.011</code>.</p><h4>Operaciones aritmeticas en binario</h4><p>Las reglas son analogas a las del sistema decimal, pero con acarreo en base 2:</p><ul><li><strong>Suma:</strong> 0+0=0, 0+1=1, 1+0=1, 1+1=0 y se transporta 1 al siguiente bit.</li><li><strong>Resta:</strong> se puede efectuar "pidiendo prestado" o mediante complemento a dos (la calculadora utiliza signo explicito <code>-</code> delante del numero).</li><li><strong>Multiplicacion:</strong> se desplaza y suma, de forma similar al algoritmo decimal. 0 por cualquier bit da 0, 1 por 1 da 1.</li><li><strong>Division:</strong> se implementa por restas sucesivas y desplazamientos.</li></ul><h4>Representacion de numeros negativos</h4><p>En esta calculadora se antepone el signo <code>-</code> al numero binario (ejemplo: <code>-101</code> equivale a -5 decimal). No se emplea complemento a dos para mantener la claridad en la notacion.</p><h4>Motor 2&sup1;&sup6; y precision</h4><p>La calculadora opera de manera nativa en binario. Todos los datos se introducen exclusivamente con digitos <code>0</code> y <code>1</code>. El resultado se presenta en binario y, entre parentesis, su equivalente decimal. La parte fraccionaria esta limitada a <strong>16 bits</strong> despues del punto; fracciones muy extensas o periodicas se truncan o redondean.</p><h4>Ingreso de expresiones</h4><ul><li>Numeros: secuencias de <code>0</code> y <code>1</code>, con un punto <code>.</code> opcional para separar la parte fraccionaria. Es posible anteponer <code>-</code> para negativos.</li><li>Operadores aritmeticos: suma (<code>+</code>), resta (<code>&minus;</code>, internamente <code>-</code>), multiplicacion (<code>&times;</code>, internamente <code>*</code>), division (<code>&divide;</code>, internamente <code>/</code>), potencia (<code>^</code>) y modulo (<code>Mod</code>, <code>%</code>).</li><li>Operadores bit a bit: AND (<code>&amp;</code>), OR (<code>|</code>), XOR (<code>&oplus;</code>), desplazamiento a izquierda (<code>&lt;&lt;</code>) y a derecha (<code>&gt;&gt;</code>). Operan exclusivamente sobre enteros.</li><li>Agrupacion: parentesis <code>( )</code>.</li></ul><h4>Funciones cientificas</h4><ul><li><strong>Trigonometricas:</strong> <code>sin(</code>, <code>cos(</code>, <code>tan(</code>, <code>sec(</code>, <code>csc(</code>, <code>cot(</code>. El argumento se expresa en radianes, introducido en binario.</li><li><strong>Trigonometricas inversas:</strong> <code>asin(</code>, <code>acos(</code>, <code>atan(</code>, <code>asec(</code>. Devuelven el angulo en radianes. <code>asin(x)</code> con <code>|x|&gt;1</code> activa el modo complejo.</li><li><strong>Hiperbolicas:</strong> <code>sinh(</code>, <code>cosh(</code>, <code>tanh(</code>, <code>sech(</code>.</li><li><strong>Logaritmos:</strong> <code>ln(</code> (logaritmo natural), <code>log(</code> (logaritmo en base 10) y <code>logb(expr, base)</code> (logaritmo en base arbitraria).</li><li><strong>Raiz cuadrada y valor absoluto:</strong> <code>sqrt(</code> y <code>abs(</code>). <code>sqrt(-x)</code> activa el modo complejo y devuelve <code>(0, sqrt(x))</code>.</li><li><strong>Redondeo y truncado:</strong> <code>floor(</code> (suelo), <code>ceil(</code> (techo), <code>round(</code> (redondeo al entero mas proximo), <code>sign(</code> (devuelve -1, 0 o 1).</li><li><strong>Gamma y factorial:</strong> <code>gamma(</code> (funcion Gamma de Euler) y <code>factorial(</code> (solo para enteros no negativos y hasta 170).</li><li><strong>Extremos y acotacion:</strong> <code>max(a,b)</code>, <code>min(a,b)</code>, <code>clamp(valor, min, max)</code>.</li></ul><h4>Numeros complejos (modo basico)</h4><p>Cuando una operacion produce un resultado complejo, la calculadora lo muestra en formato <code>(real_bin, imag_bin)</code>. Se activa automaticamente para:</p><ul><li><code>sqrt(negativo)</code> -&gt; <code>(0, sqrt(|x|))</code></li><li><code>ln(negativo)</code> -&gt; <code>(ln(|x|), &pi;)</code></li><li><code>asin(x)</code> con <code>|x| &gt; 1</code> -&gt; resultado complejo segun formula estandar.</li></ul><h4>Variables y macros (@)</h4><p>Las variables se identifican con el prefijo <code>@</code> seguido de un codigo binario de <strong>8 bits</strong>. Existen dos variables predefinidas: <code>@x</code> (codigo <code>01111000</code>) y <code>@y</code> (codigo <code>01111001</code>).</p><ul><li><strong>Asignacion directa:</strong> <code>@codigo = expresion</code> o <code>Var(@codigo : expresion)</code>. La expresion se evalua de inmediato y se guarda el resultado en binario.</li><li><strong>Macro (ejecucion diferida):</strong> si el valor asignado comienza con <code>CAD(</code>, se almacena la expresion literal sin evaluar. Cada vez que se invoque <code>@codigo</code> se ejecutara el bloque CAD de nuevo.</li><li>El panel <strong>Vars</strong> permite inspeccionar, insertar, eliminar, exportar e importar variables y macros.</li></ul><h4>Constantes</h4><p>Se dispone de dos constantes predefinidas: <code>&pi;</code> (pi) y <code>e</code> (base de los logaritmos naturales). Se insertan con los botones correspondientes y se tratan como valores numericos en las expresiones.</p><h4>Derivadas e integrales</h4><ul><li><strong>Derivada numerica:</strong> <code>diff(expresion, @var, punto, h?)</code>. Utiliza diferencias centrales con paso <code>h</code> (por defecto <code>1e-8</code> en decimal). Ejemplo: <code>diff(@x^1010, @x, 1010)</code> evalua la derivada de x^10 en x = 10 (binario).</li><li><strong>Integral definida:</strong> <code>int(expresion, @var, a, b, n?)</code>. Emplea el metodo de Simpson compuesto con <code>n</code> subintervalos (debe ser par; por defecto 1024). Ejemplo: <code>int(@x^10, @x, 0, 1010)</code> calcula la integral entre 0 y 10.</li></ul><h4>Matrices</h4><ul><li><strong>Definicion:</strong> las filas se separan con <code>;</code> y los elementos de cada fila con <code>,</code>. Tambien se admite la notacion con corchetes anidados: <code>[[a,b],[c,d]]</code>. Ejemplo: <code>[1,10;11,100]</code> representa la matriz [[1,2],[3,4]] en decimal.</li><li><strong>Operaciones:</strong> <code>det(matriz)</code> (determinante), <code>inv(matriz)</code> (inversa), <code>tr(matriz)</code> o <code>trans(matriz)</code> (transpuesta), <code>matAdd(A,B)</code> (suma), <code>matMul(A,B)</code> (multiplicacion), <code>matScalarMul(k,A)</code> (producto por escalar), <code>matPow(A,n)</code> (potencia de matriz). El boton <code>&otimes;</code> inserta <code>matMul(</code>.</li></ul><h4>Graficos (Plot)</h4><p>Permite representar ecuaciones en el plano cartesiano utilizando <code>@x</code> y <code>@y</code>.</p><ul><li><strong>Modo explicito:</strong> <code>@y = expresion en @x</code>. Se traza una curva evaluando la funcion para cada columna de pixeles.</li><li><strong>Modo implicito:</strong> <code>expr1 = expr2</code>. Se dibujan todos los puntos donde la diferencia entre ambas expresiones es suficientemente pequena (util, por ejemplo, para circunferencias: <code>@x^10 + @y^10 = 1</code>).</li></ul><h4>Cadenas de ejecucion (CAD)</h4><p>La construccion <code>CAD(instruccion1 : instruccion2 : ... : N)</code> ejecuta secuencialmente las instrucciones separadas por dos puntos. El ultimo argumento opcional <code>N</code> indica el numero de repeticiones (por defecto 1). Durante la ejecucion se habilita un boton <strong>STOP</strong> para interrumpir el proceso.</p><h4>Programas Ini (Crear Archivo)</h4><p>La construccion <code>Ini(sec1 : sec2 : ... : Cr(autor))</code> permite definir un pequeno programa con:</p><ul><li><strong>Var(...):</strong> definicion de variables iniciales al inicio del programa.</li><li><strong>CAD(...):</strong> cadenas de ejecucion secuencial (pueden ser varias).</li><li><strong>Cr(autor):</strong> metadato con el nombre del creador (informativo, se muestra al finalizar).</li></ul><p>Ejemplo: <code>Ini(Var(@01001111:1010111111):CAD(@01001111 + 1):Cr(Fulano))</code>. Los botones <strong>&#9660; Ini</strong> y <strong>&#9650; Ini</strong><h4>Creador</h4><p>Sebastian Alexander Saldivar Fuentes</p><p>Tor wao22hslxp4bfomztorzvcvxiwz7cwiuijsf2qj7ivvdh5oymug2efad.onion</p><p>Redit 4.6692016</p><p>X 2.718281828</p><p>Githup 3.1415926535</p><p>Briar briar//aa71awwzlynnw7gdrypoydpfi552rypcrhvg5gz5ifssxputvu5hi</p><h4>Enlaces</h4><p>https://calc64.netlify.app/</p></div></div></div>
+<div class="modal-overlay" id="varsOverlay"><div class="modal"><div class="modal-header"><h3>Variables y Macros</h3><button class="modal-close" id="varsClose">X</button></div><div class="vars-list" id="varsList"><div class="empty-state">No hay variables definidas.</div></div><div class="vars-actions"><button class="btn-vars-action" id="btnVarsRefresh">Refrescar</button><button class="btn-export" id="btnVarsDownload">Descargar (.ini)</button><button class="btn-export" id="btnVarsUpload">Cargar (.ini)</button><button class="btn-vars-action danger" id="btnVarsClearAll">Limpiar todas</button></div></div></div>
+<div class="modal-overlay" id="histOverlay"><div class="modal"><div class="modal-header"><h3>Historial de Operaciones</h3><button class="modal-close" id="histClose">X</button></div><div class="hist-list" id="histList"><div class="empty-state">El historial esta vacio.</div></div><div class="hist-actions"><button class="btn-hist-action" id="btnHistRefresh">Refrescar</button><button class="btn-export" id="btnHistDownload">Descargar (.ini)</button><button class="btn-export" id="btnHistUpload">Cargar (.ini)</button><button class="btn-hist-action danger" id="btnHistClearAll">Limpiar historial</button></div></div></div>
+<div class="modal-overlay" id="settingsOverlay"><div class="modal"><div class="modal-header"><h3>Ajustes del Motor</h3><button class="modal-close" id="settingsClose">X</button></div><div class="settings-grid">
+<div class="settings-field"><label>Bits fraccionarios</label><input type="number" id="setFracBits" value="16" min="4" max="64" step="1"><span class="hint">Precision binaria fraccionaria (4-64)</span></div>
+<div class="settings-field"><label>Max. iteraciones suma/prod</label><input type="number" id="setMaxSumIter" value="10000" min="100" max="1000000" step="100"><span class="hint">Limite para sumatorias y productorias</span></div>
+<div class="settings-field"><label>Max. entradas historial</label><input type="number" id="setMaxHist" value="80" min="10" max="500" step="10"><span class="hint">Entradas conservadas en historial</span></div>
+<div class="settings-field"><label>Paso diff (h)</label><input type="text" id="setDiffH" value="1e-8"><span class="hint">Paso por defecto para diferencias centrales</span></div>
+<div class="settings-field"><label>Subintervalos int (n)</label><input type="number" id="setIntN" value="1024" min="16" max="100000" step="16"><span class="hint">Subintervalos Simpson (debe ser par)</span></div>
+<div class="settings-field"><label>Tolerancia solve</label><input type="text" id="setSolveTol" value="1e-12"><span class="hint">Tolerancia metodo Brent</span></div>
+<div class="settings-field"><label>Max. iteraciones Brent</label><input type="number" id="setBrentMaxIter" value="100" min="20" max="5000" step="10"><span class="hint">Iteraciones maximas del metodo Brent</span></div>
+<div class="settings-field"><label>Precision decimal</label><input type="number" id="setDecPrec" value="4" min="1" max="16" step="1"><span class="hint">Decimales mostrados en conversion</span></div>
+<div class="settings-field"><label>Max. pasos CAD sinc.</label><input type="number" id="setMaxCADSteps" value="10000" min="100" max="1000000" step="100"><span class="hint">Limite de pasos en ejecucion sincronica</span></div>
+</div>
+<div class="settings-actions"><button class="btn-settings-action primary" id="btnSettingsSave">Guardar ajustes</button><button class="btn-settings-action danger" id="btnSettingsReset">Restaurar predeterminados</button></div></div></div>
+<input type="file" id="varsFileInput" accept=".ini,.txt" style="display:none;">
+<input type="file" id="histFileInput" accept=".ini,.txt" style="display:none;">
+<input type="file" id="iniFileInput" accept=".ini,.txt" style="display:none;">
+<script>
+(function(){
+// INYECCIÓN: Motor Complejo Riguroso
+window.C = {
+    add: (a, b) => {
+        if (typeof a === 'number' && typeof b === 'number') return a + b;
+        const ar = a.r??a, ai = a.i??0, br = b.r??b, bi = b.i??0;
+        return {r: ar+br, i: ai+bi, isComplex: true};
+    },
+    sub: (a, b) => {
+        if (typeof a === 'number' && typeof b === 'number') return a - b;
+        const ar = a.r??a, ai = a.i??0, br = b.r??b, bi = b.i??0;
+        return {r: ar-br, i: ai-bi, isComplex: true};
+    },
+    mul: (a, b) => {
+        if (typeof a === 'number' && typeof b === 'number') return a * b;
+        const ar = a.r??a, ai = a.i??0, br = b.r??b, bi = b.i??0;
+        return {r: ar*br - ai*bi, i: ar*bi + ai*br, isComplex: true};
+    },
+    div: (a, b) => {
+        if (typeof a === 'number' && typeof b === 'number') {
+            if (b===0) throw new Error('Error matemático: División por cero');
+            return a / b;
+        }
+        const ar = a.r??a, ai = a.i??0, br = b.r??b, bi = b.i??0;
+        const den = br*br + bi*bi;
+        if (den === 0) throw new Error('Error matemático: División por cero (Complejo)');
+        return {r: (ar*br + ai*bi)/den, i: (ai*br - ar*bi)/den, isComplex: true};
+    },
+    pow: (a, b) => {
+        if (typeof a === 'number' && typeof b === 'number' && a >= 0) return Math.pow(a, b);
+        if (typeof a === 'number' && typeof b === 'number' && a < 0 && Number.isInteger(b)) return Math.pow(a, b);
+        const ar = a.r??a, ai = a.i??0, br = b.r??b, bi = b.i??0;
+        if (ar===0 && ai===0) return 0;
+        const r = Math.sqrt(ar*ar + ai*ai);
+        const theta = Math.atan2(ai, ar);
+        const expr = Math.log(r)*br - theta*bi;
+        const expi = Math.log(r)*bi + theta*br;
+        const exp_val = Math.exp(expr);
+        return {r: exp_val * Math.cos(expi), i: exp_val * Math.sin(expi), isComplex: true};
+    },
+    sqrt: (a) => {
+        if (typeof a === 'number' && a >= 0) return Math.sqrt(a);
+        const ar = a.r??a, ai = a.i??0;
+        const r = Math.sqrt(ar*ar + ai*ai);
+        const theta = Math.atan2(ai, ar)/2;
+        const r_sqrt = Math.sqrt(r);
+        return {r: r_sqrt * Math.cos(theta), i: r_sqrt * Math.sin(theta), isComplex: true};
+    },
+    mod: (a, b) => {
+        if (typeof a === 'number' && typeof b === 'number') return a % b;
+        return {r: (a.r??a) % (b.r??b), i: 0, isComplex: true};
+    },
+    ln: (a) => {
+        if (typeof a === 'number' && a > 0) return Math.log(a);
+        const ar = a.r??a, ai = a.i??0;
+        if(ar===0 && ai===0) throw new Error('Error matemático: Logaritmo de cero');
+        const r = Math.sqrt(ar*ar + ai*ai);
+        const theta = Math.atan2(ai, ar);
+        return {r: Math.log(r), i: theta, isComplex: true};
+    },
+    sin: (a) => {
+        if (typeof a === 'number') return Math.sin(a);
+        const ar = a.r??a, ai = a.i??0;
+        return {r: Math.sin(ar)*Math.cosh(ai), i: Math.cos(ar)*Math.sinh(ai), isComplex: true};
+    },
+    cos: (a) => {
+        if (typeof a === 'number') return Math.cos(a);
+        const ar = a.r??a, ai = a.i??0;
+        return {r: Math.cos(ar)*Math.cosh(ai), i: -Math.sin(ar)*Math.sinh(ai), isComplex: true};
+    },
+    tan: (a) => {
+        if (typeof a === 'number') return Math.tan(a);
+        return C.div(C.sin(a), C.cos(a));
+    },
+    asin: (a) => {
+        if (typeof a === 'number' && Math.abs(a) <= 1) return Math.asin(a);
+        const z = {r: a.r??a, i: a.i??0, isComplex: true};
+        const iz = {r: -z.i, i: z.r, isComplex: true};
+        const z2 = C.mul(z, z);
+        const sq = C.sqrt(C.sub(1, z2));
+        const l = C.ln(C.add(iz, sq));
+        return {r: l.i, i: -l.r, isComplex: true};
+    }
+};
+
+const toastContainer=document.getElementById('toastContainer');function showToast(m,t,d=3000){const toast=document.createElement('div');toast.className=`toast ${t}`;toast.innerHTML=`<span>${m}</span>`;toastContainer.appendChild(toast);setTimeout(()=>{toast.classList.add('closing');toast.addEventListener('animationend',()=>toast.remove());},d);}
+const DEFAULTS={fracBits:16,maxSumIterations:10000,maxHistoryEntries:80,diffDefaultH:1e-8,intDefaultN:1024,solveTolerance:1e-12,solveMaxIter:100,decimalPrecision:4,maxCADSteps:10000};
+let settings={...DEFAULTS};
+function loadSettings(){const raw=localStorage.getItem('binCalculatorSettingsV3');if(raw){try{const obj=JSON.parse(raw);for(const k of Object.keys(DEFAULTS)){if(obj[k]!==undefined&&typeof obj[k]===typeof DEFAULTS[k])settings[k]=obj[k];}}catch(e){settings={...DEFAULTS};}}else{settings={...DEFAULTS};}}
+function saveSettings(){localStorage.setItem('binCalculatorSettingsV3',JSON.stringify(settings));}
+function applySettingsToUI(){document.getElementById('setFracBits').value=settings.fracBits;document.getElementById('setMaxSumIter').value=settings.maxSumIterations;document.getElementById('setMaxHist').value=settings.maxHistoryEntries;document.getElementById('setDiffH').value=String(settings.diffDefaultH);document.getElementById('setIntN').value=settings.intDefaultN;document.getElementById('setSolveTol').value=String(settings.solveTolerance);document.getElementById('setBrentMaxIter').value=settings.solveMaxIter;document.getElementById('setDecPrec').value=settings.decimalPrecision;document.getElementById('setMaxCADSteps').value=settings.maxCADSteps;}
+function collectSettingsFromUI(){const fb=parseInt(document.getElementById('setFracBits').value);if(isNaN(fb)||fb<4||fb>64)throw new Error('Bits fraccionarios debe ser 4-64');const msi=parseInt(document.getElementById('setMaxSumIter').value);if(isNaN(msi)||msi<100)throw new Error('Max iteraciones suma/prod debe ser >=100');const mh=parseInt(document.getElementById('setMaxHist').value);if(isNaN(mh)||mh<10)throw new Error('Max entradas historial debe ser >=10');const dh=parseFloat(document.getElementById('setDiffH').value);if(isNaN(dh)||dh<=0||dh>1)throw new Error('Paso diff debe ser >0 y <=1');const inn=parseInt(document.getElementById('setIntN').value);if(isNaN(inn)||inn<16)throw new Error('Subintervalos int debe ser >=16');const st=parseFloat(document.getElementById('setSolveTol').value);if(isNaN(st)||st<=0||st>=1)throw new Error('Tolerancia solve debe ser >0 y <1');const bmi=parseInt(document.getElementById('setBrentMaxIter').value);if(isNaN(bmi)||bmi<20)throw new Error('Max iteraciones Brent debe ser >=20');const dp=parseInt(document.getElementById('setDecPrec').value);if(isNaN(dp)||dp<1||dp>16)throw new Error('Precision decimal debe ser 1-16');const mcs=parseInt(document.getElementById('setMaxCADSteps').value);if(isNaN(mcs)||mcs<100)throw new Error('Max pasos CAD debe ser >=100');settings.fracBits=fb;settings.maxSumIterations=msi;settings.maxHistoryEntries=mh;settings.diffDefaultH=dh;settings.intDefaultN=inn;settings.solveTolerance=st;settings.solveMaxIter=bmi;settings.decimalPrecision=dp;settings.maxCADSteps=mcs;}
+const expressionEl=document.getElementById('expression'),resultEl=document.getElementById('result'),resultDecEl=document.getElementById('resultDec'),displayContainer=document.getElementById('displayContainer'),plotCanvas=document.getElementById('plotCanvas');const ctx=plotCanvas.getContext('2d');function resizeCanvas(){const rect=plotCanvas.parentElement.getBoundingClientRect();plotCanvas.width=rect.width;plotCanvas.height=rect.height;}
+window.addEventListener('resize',resizeCanvas);let expressionStr='0',lastResult=null;const variables=new Map(),macroVariables=new Map();const CODE_X='01111000',CODE_Y='01111001';variables.set(CODE_X,'0');variables.set(CODE_Y,'0');let historyEntries=[];function loadHistory(){const raw=localStorage.getItem('binCalculatorHistoryVerde10');if(raw){try{historyEntries=JSON.parse(raw);if(!Array.isArray(historyEntries))historyEntries=[];const maxH=settings.maxHistoryEntries;if(historyEntries.length>maxH)historyEntries=historyEntries.slice(0,maxH);}catch(e){historyEntries=[];}}else{historyEntries=[];}}
+function saveHistory(){const maxH=settings.maxHistoryEntries;if(historyEntries.length>maxH)historyEntries=historyEntries.slice(0,maxH);localStorage.setItem('binCalculatorHistoryVerde10',JSON.stringify(historyEntries));}
+function addHistoryEntry(expr,resBin,resDec,type){const entry={expr,resBin,resDec,type:type||'value',timestamp:Date.now()};historyEntries.unshift(entry);const maxH=settings.maxHistoryEntries;if(historyEntries.length>maxH)historyEntries.pop();saveHistory();}
+function clearHistory(){historyEntries=[];saveHistory();showToast('Historial limpiado.','info');renderHistModal();}
+function escapeHTML(str){const div=document.createElement('div');div.textContent=str;return div.innerHTML;}
+function renderHistModal(){const listEl=document.getElementById('histList');if(!listEl)return;if(historyEntries.length===0){listEl.innerHTML='<div class="empty-state">El historial esta vacio.</div>';return;}let html='';for(let i=0;i<historyEntries.length;i++){const entry=historyEntries[i];const timeStr=entry.timestamp?new Date(entry.timestamp).toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit',second:'2-digit'}):'';const shortExpr=entry.expr.length>50?entry.expr.substring(0,47)+'...':entry.expr;const displayExpr=shortExpr.replace(/\*/g,'×').replace(/\//g,'÷').replace(/-/g,'−').replace(/@01111000/g,'@x').replace(/@01111001/g,'@y');const resDisplay=entry.type==='matrix'?entry.resBin:(entry.resBin||'');html+=`<div class="hist-item" data-index="${i}" title="Clic para restaurar"><span class="hist-expr">${escapeHTML(displayExpr)}</span><span class="hist-result">→ ${escapeHTML(resDisplay)}</span><span class="hist-time">${timeStr}</span></div>`;}
+listEl.innerHTML=html;listEl.querySelectorAll('.hist-item').forEach(item=>{item.addEventListener('click',function(){const idx=parseInt(this.getAttribute('data-index'));if(idx>=0&&idx<historyEntries.length){const entry=historyEntries[idx];expressionStr=entry.expr;if(entry.type==='matrix'){lastResult=entry.resBin;}else if(entry.resBin&&entry.resDec!==undefined){lastResult={bin:entry.resBin,dec:entry.resDec};}else{lastResult=null;}
+updateDisplay();document.getElementById('histOverlay').classList.remove('active');showToast('Entrada restaurada del historial.','info',1500);}});});}
+function renderVarsModal(){const listEl=document.getElementById('varsList');if(!listEl)return;const allCodes=new Set([...variables.keys(),...macroVariables.keys()]);if(allCodes.size===0){listEl.innerHTML='<div class="empty-state">No hay variables definidas.</div>';return;}const sortedCodes=[...allCodes].sort();let html='';for(const code of sortedCodes){const isMacro=macroVariables.has(code);const val=isMacro?macroVariables.get(code):variables.get(code);const displayCode=code===CODE_X?'x':code===CODE_Y?'y':code;const typeLabel=isMacro?'MACRO':'VALOR';const typeClass=isMacro?'macro':'value';const displayVal=isMacro?val:(val||'0');html+=`<div class="var-item" data-code="${code}"><span class="var-code">@${displayCode}</span><span class="var-value" title="${escapeHTML(displayVal)}">${escapeHTML(displayVal.length>40?displayVal.substring(0,37)+'...':displayVal)}</span><span class="var-type-badge ${typeClass}">${typeLabel}</span><button class="btn-insert-var-sm" data-insert="${code}">Insertar</button><button class="btn-delete-var" data-delete="${code}">X</button></div>`;}
+listEl.innerHTML=html;listEl.querySelectorAll('[data-insert]').forEach(btn=>{btn.addEventListener('click',function(e){e.stopPropagation();const code=this.getAttribute('data-insert');const displayCode=code===CODE_X?'x':code===CODE_Y?'y':code;appendToExpression('@'+displayCode);document.getElementById('varsOverlay').classList.remove('active');showToast(`@${displayCode} insertado en la expresion.`,'success',1500);});});listEl.querySelectorAll('[data-delete]').forEach(btn=>{btn.addEventListener('click',function(e){e.stopPropagation();const code=this.getAttribute('data-delete');const displayCode=code===CODE_X?'x':code===CODE_Y?'y':code;if(code===CODE_X||code===CODE_Y){showToast(`No se puede eliminar @${displayCode} (reservada).`,'error');return;}
+variables.delete(code);macroVariables.delete(code);showToast(`Variable @${displayCode} eliminada.`,'info');renderVarsModal();updateDisplay();});});}
+function saveVariables(){const obj={values:Object.fromEntries(variables),macros:Object.fromEntries(macroVariables)};localStorage.setItem('binCalculatorVarsVerde10',JSON.stringify(obj));showToast('Memoria persistida (valores + macros).','success');}
+function loadVariables(){const raw=localStorage.getItem('binCalculatorVarsVerde10');if(!raw){showToast('Registro de estado vacio.','info');return;}try{const obj=JSON.parse(raw);variables.clear();macroVariables.clear();if(obj.values)for(let[k,v]of Object.entries(obj.values))variables.set(k,v);if(obj.macros)for(let[k,v]of Object.entries(obj.macros))macroVariables.set(k,v);if(!variables.has(CODE_X)&&!macroVariables.has(CODE_X))variables.set(CODE_X,'0');if(!variables.has(CODE_Y)&&!macroVariables.has(CODE_Y))variables.set(CODE_Y,'0');showToast('Memoria de estado restaurada.','success');updateDisplay();}catch(e){showToast('Memoria corrupta. Error: '+e.message,'error');}}
+function downloadAsIni(data,filename){const jsonStr=JSON.stringify(data,null,2);const blob=new Blob([jsonStr],{type:'text/plain;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);}
+function downloadVarsAsIni(){const data={values:Object.fromEntries(variables),macros:Object.fromEntries(macroVariables),exportedAt:new Date().toISOString(),version:'2.3'};const timestamp=new Date().toISOString().replace(/[:.]/g,'-').slice(0,19);downloadAsIni(data,`variables_binarias_${timestamp}.ini`);showToast('Variables exportadas como .ini','success',2000);}
+function uploadVarsFromIni(){document.getElementById('varsFileInput').click();}
+function handleVarsFileUpload(file){if(!file)return;const reader=new FileReader();reader.onload=function(e){try{const data=JSON.parse(e.target.result);if(!data||typeof data!=='object')throw new Error('Formato invalido');variables.clear();macroVariables.clear();if(data.values&&typeof data.values==='object'){for(let[k,v]of Object.entries(data.values)){if(/^[01]{8}$/.test(k)&&typeof v==='string')variables.set(k,v);}}
+if(data.macros&&typeof data.macros==='object'){for(let[k,v]of Object.entries(data.macros)){if(/^[01]{8}$/.test(k)&&typeof v==='string')macroVariables.set(k,v);}}
+if(!variables.has(CODE_X)&&!macroVariables.has(CODE_X))variables.set(CODE_X,'0');if(!variables.has(CODE_Y)&&!macroVariables.has(CODE_Y))variables.set(CODE_Y,'0');saveVariables();renderVarsModal();updateDisplay();showToast('Variables cargadas desde archivo .ini','success',2500);}catch(err){showToast('Error al cargar variables: '+err.message,'error',3000);}};reader.onerror=function(){showToast('Error al leer el archivo.','error',3000);};reader.readAsText(file);}
+function downloadHistAsIni(){const data={history:historyEntries,exportedAt:new Date().toISOString(),version:'2.3',totalEntries:historyEntries.length};const timestamp=new Date().toISOString().replace(/[:.]/g,'-').slice(0,19);downloadAsIni(data,`historial_binario_${timestamp}.ini`);showToast('Historial exportado como .ini','success',2000);}
+function uploadHistFromIni(){document.getElementById('histFileInput').click();}
+function handleHistFileUpload(file){if(!file)return;const reader=new FileReader();reader.onload=function(e){try{const data=JSON.parse(e.target.result);if(!data||!Array.isArray(data.history))throw new Error('Formato invalido: se esperaba un objeto con propiedad "history" (array)');const newEntries=data.history.filter(entry=>entry&&typeof entry.expr==='string'&&typeof entry.type==='string');if(newEntries.length===0)throw new Error('No se encontraron entradas validas en el archivo');const maxH=settings.maxHistoryEntries;historyEntries=newEntries.slice(0,maxH);saveHistory();renderHistModal();showToast(`Historial cargado: ${historyEntries.length} entradas restauradas.`,'success',2500);}catch(err){showToast('Error al cargar historial: '+err.message,'error',3000);}};reader.onerror=function(){showToast('Error al leer el archivo.','error',3000);};reader.readAsText(file);}
+function downloadIni(){const expr=expressionStr.trim();if(!expr.startsWith('Ini(')||!expr.endsWith(')')){showToast('El display no contiene un programa Ini valido.','error');return;}const blob=new Blob([expr],{type:'text/plain;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;const timestamp=new Date().toISOString().replace(/[:.]/g,'-').slice(0,19);a.download=`programa_${timestamp}.ini`;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);showToast('Programa Ini descargado.','success',2000);}
+function uploadIni(){document.getElementById('iniFileInput').click();}
+function handleIniFileUpload(file){if(!file)return;const reader=new FileReader();reader.onload=function(e){const content=e.target.result.trim();if(!content.startsWith('Ini(')||!content.endsWith(')')){showToast('El archivo no contiene un programa Ini valido.','error',3000);return;}
+expressionStr=content;lastResult=null;updateDisplay();showToast('Programa Ini cargado en el display.','success',2000);};reader.onerror=function(){showToast('Error al leer el archivo Ini.','error',3000);};reader.readAsText(file);}
+
+// Actualizado para soportar parseo de strings complejos
+function parseBinaryToDecimal(b){
+    b=b.trim();
+    if(b.startsWith('(')&&b.endsWith(')')){
+        const inner=b.slice(1,-1);
+        const cIdx=inner.indexOf(',');
+        if(cIdx!==-1){
+            const rStr=inner.slice(0,cIdx).trim();
+            let iStr=inner.slice(cIdx+1).trim();
+            let iSign=1;
+            if(iStr.startsWith('+')) iStr=iStr.slice(1);
+            else if(iStr.startsWith('-')) { iSign=-1; iStr=iStr.slice(1); }
+            const real=parseBinaryToDecimal(rStr);
+            const imag=parseBinaryToDecimal(iStr);
+            return {r: real, i: iSign*imag, isComplex:true};
+        }
+    }
+    let neg=false;if(b.startsWith('-')){neg=true;b=b.slice(1);}if(b===''||b==='.')return NaN;
+    const p=b.split('.'),intPart=p[0]||'0',fracPart=p[1]||'';
+    if(!/^[01]*$/.test(intPart)||!/^[01]*$/.test(fracPart))return NaN;
+    let dec=0;for(let i=0;i<intPart.length;i++)if(intPart[i]==='1')dec+=Math.pow(2,intPart.length-1-i);
+    for(let i=0;i<fracPart.length;i++)if(fracPart[i]==='1')dec+=Math.pow(2,-(i+1));
+    return neg?-dec:dec;
+}
+
+function decimalToBinary(n){const mB=settings.fracBits;if(isNaN(n)||!isFinite(n))return'Error';if(n===0||Math.abs(n)<1e-15)return'0';if(Math.abs(n-Math.round(n))<1e-12)n=Math.round(n);const neg=n<0;n=Math.abs(n);const intPart=Math.floor(n);let fracPart=n-intPart;let intBin=intPart.toString(2),fracBin='';if(fracPart>0){const scale=Math.pow(2,mB);let fracScaled=Math.round(fracPart*scale);if(fracScaled>=scale){fracScaled-=scale;intBin=(BigInt('0b'+intBin)+1n).toString(2);}
+if(fracScaled>0)fracBin=fracScaled.toString(2).padStart(mB,'0').replace(/0+$/,'');}
+return(neg?'-':'')+intBin+(fracBin?'.'+fracBin:'');}
+function decimalToBinaryComplex(real,imag){const rBin=decimalToBinary(real);const iBin=decimalToBinary(Math.abs(imag));const iSign=imag<0?'-':(imag>=0&&iBin!=='0'?'+':'');return`(${rBin}, ${iSign}${iBin})`;}
+function decimalToDecStringComplex(real,imag){const dp=settings.decimalPrecision;const rDec=Number.isInteger(real)?real:parseFloat(real.toFixed(dp));const iDec=Number.isInteger(imag)?imag:parseFloat(imag.toFixed(dp));const iSign=imag<0?'-':(imag>=0?'+':'');return`(= ${rDec} ${iSign} ${Math.abs(iDec)}i)`;}
+function expandQuoteSyntax(expr){let result='',i=0;while(i<expr.length){if(expr[i]==='"'){let j=i+1;while(j<expr.length&&expr[j]!=='"')j++;if(j>=expr.length)throw new Error('Error de sintaxis: Comilla sin cierre');const inner=expr.substring(i+1,j);const parts=inner.split("'");if(parts.length!==3)throw new Error("Error de sintaxis: Formato condicional incorrecto. Use \"valor1 ' cond ' valor2\"");const[truePart,condPart,falsePart]=parts;result+=`cond(${truePart},${condPart},${falsePart})`;i=j+1;}else{result+=expr[i];i++;}}
+return result;}
+function preprocessExpression(expr){return expandQuoteSyntax(expr);}
+window.gamma=function(z){if(z<0.5)return Math.PI/(Math.sin(Math.PI*z)*window.gamma(1-z));z-=1;const g=7;const p=[0.99999999999980993,676.5203681218851,-1259.1392167224028,771.32342877765313,-176.61502916214059,12.507343278686905,-0.13857109526572012,9.9843695780195716e-6,1.5056327351493116e-6];let x=p[0];for(let i=1;i<g+2;i++)x+=p[i]/(z+i);const t=z+g+0.5;return Math.sqrt(2*Math.PI)*Math.pow(t,z+0.5)*Math.exp(-t)*x;};
+window.factorial=function(n){if(n<0||n!==Math.floor(n))return NaN;if(n>170)return Infinity;let r=1;for(let i=2;i<=n;i++)r*=i;return r;};
+const FUNCTIONS=new Set(['sqrt','sin','cos','tan','sec','csc','cot','asin','acos','atan','asec','sinh','cosh','tanh','sech','ln','log','logb','abs','diff','int','det','inv','tr','trans','matAdd','matMul','matScalarMul','matPow','cond','if','floor','ceil','round','sign','gamma','factorial','max','min','clamp','sum','prod','sumatoria','productoria','solve','ini','cr']);
+const CONSTANTS={'π':Math.PI,'e':Math.E};
+function tokenize(expr,allowEqual=false,depth=0){if(depth>12)throw new Error('Error de sintaxis: Expansion de macros demasiado profunda (>12 niveles)');const tokens=[];let i=0;while(i<expr.length){const ch=expr[i];if(/\s/.test(ch)){i++;continue;}
+if(ch==='='&&allowEqual){tokens.push({type:'equal',value:'='});i++;continue;}
+if(ch==='='&&!allowEqual)throw new Error("Error de sintaxis: '=' no permitido en esta evaluacion");if(ch==='('||ch===')'){tokens.push({type:'paren',value:ch});i++;continue;}
+if(ch==='['||ch===']'){tokens.push({type:'bracket',value:ch});i++;continue;}
+if(ch===','){tokens.push({type:'comma',value:','});i++;continue;}
+if(ch===';'){tokens.push({type:'semicolon',value:';'});i++;continue;}
+if(['+','*','/','^','&','|','%','⊕'].includes(ch)){tokens.push({type:'operator',value:ch,binary:true});i++;continue;}
+if(expr.substr(i,2)==='<<'){tokens.push({type:'operator',value:'<<',binary:true});i+=2;continue;}
+if(expr.substr(i,2)==='>>'){tokens.push({type:'operator',value:'>>',binary:true});i+=2;continue;}
+if(ch==='π'||ch==='e'){tokens.push({type:'number',value:CONSTANTS[ch].toString()});i++;continue;}
+if(ch==='@'){i++;let code='';if(i<expr.length&&expr[i]==='x'){code=CODE_X;i++;}else if(i<expr.length&&expr[i]==='y'){code=CODE_Y;i++;}else{while(i<expr.length&&/[01]/.test(expr[i])&&code.length<8){code+=expr[i];i++;}if(code.length!==8)throw new Error('Error de variable: Codigo mal formado tras @ (8 bits)');}
+if(macroVariables.has(code)){const macroTokens=tokenize('('+macroVariables.get(code)+')',allowEqual,depth+1);tokens.push(...macroTokens);}else if(variables.has(code)){tokens.push({type:'variable',code});}else{throw new Error('Error de variable: Variable @'+(code===CODE_X?'x':code===CODE_Y?'y':code)+' no definida');}
+continue;}
+if(ch==='-'){if(tokens.length===0||tokens[tokens.length-1].type==='operator'||tokens[tokens.length-1].value==='('||tokens[tokens.length-1].value==='['||tokens[tokens.length-1].type==='comma'||tokens[tokens.length-1].type==='semicolon'){tokens.push({type:'operator',value:'u-',binary:false});}else{tokens.push({type:'operator',value:'-',binary:true});}
+i++;continue;}
+if(/[0-9.]/.test(ch)){let num='';let dotCount=0;while(i<expr.length&&/[0-9.]/.test(expr[i])){if(expr[i]==='.')dotCount++;if(dotCount>1)throw new Error('Error de sintaxis: Numero mal formado (multiples puntos decimales)');num+=expr[i];i++;}
+tokens.push({type:'number',value:num});continue;}
+if(ch==='Σ'){tokens.push({type:'function',value:'sum'});i++;continue;}
+if(ch==='∏'){tokens.push({type:'function',value:'prod'});i++;continue;}
+if(/[a-zA-Z]/.test(ch)){let name='';while(i<expr.length&&/[a-zA-Z]/.test(expr[i])){name+=expr[i];i++;}
+const l=name.toLowerCase();if(FUNCTIONS.has(l))tokens.push({type:'function',value:l});else throw new Error('Error de sintaxis: Referencia desconocida: '+name);continue;}
+throw new Error('Error de sintaxis: Caracter invalido cerca de: '+ch);}
+return tokens;}
+
+function compileRPNtoJS(tokens){const prec={'+':1,'-':1,'*':2,'/':2,'%':2,'^':3,'&':0,'|':0,'⊕':0,'<<':0,'>>':0,'u-':4},assoc={'+':'L','-':'L','*':'L','/':'L','%':'L','^':'R','&':'L','|':'L','⊕':'L','<<':'L','>>':'L','u-':'R'};const outputQueue=[],operatorStack=[];for(const tok of tokens){if(tok.type==='number'||tok.type==='variable'){outputQueue.push(tok);}else if(tok.type==='function'){operatorStack.push(tok);}else if(tok.type==='operator'){while(operatorStack.length>0){const top=operatorStack[operatorStack.length-1];if(top.type==='paren'&&top.value==='(')break;if(top.type==='function'){outputQueue.push(operatorStack.pop());continue;}
+if(top.type==='operator'){if((assoc[tok.value]==='L'&&prec[tok.value]<=prec[top.value])||(assoc[tok.value]==='R'&&prec[tok.value]<prec[top.value])){outputQueue.push(operatorStack.pop());}else break;}}
+operatorStack.push(tok);}else if(tok.type==='paren'&&tok.value==='('){operatorStack.push(tok);}else if(tok.type==='paren'&&tok.value===')'){while(operatorStack.length>0&&!(operatorStack[operatorStack.length-1].type==='paren'&&operatorStack[operatorStack.length-1].value==='(')){outputQueue.push(operatorStack.pop());}
+if(operatorStack.length>0)operatorStack.pop();else throw new Error('Error de sintaxis: Falta parentesis de apertura');if(operatorStack.length>0&&operatorStack[operatorStack.length-1].type==='function'){outputQueue.push(operatorStack.pop());}}}
+while(operatorStack.length>0){const top=operatorStack.pop();if(top.type==='paren')throw new Error('Error de sintaxis: Falta parentesis de cierre');outputQueue.push(top);}
+let code='var stack=[];\n';for(const tok of outputQueue){if(tok.type==='number'){
+    let d=parseNumberToken(tok.value);
+    if(typeof d === 'object'){
+        code+=`stack.push({r: ${d.r}, i: ${d.i}, isComplex: true});\n`;
+    }else{
+        if(isNaN(d))throw new Error('Error de sintaxis: Numero mal formado: '+tok.value);
+        code+=`stack.push(${d});\n`;
+    }
+}else if(tok.type==='variable'){
+    if(tok.code===CODE_X)code+=`stack.push(x);\n`;
+    else if(tok.code===CODE_Y)code+=`stack.push(y);\n`;
+    else{
+        let decVal=variables.has(tok.code)?parseBinaryToDecimal(variables.get(tok.code)):0;
+        if(typeof decVal === 'object'){
+            code+=`stack.push({r: ${decVal.r}, i: ${decVal.i}, isComplex: true});\n`;
+        }else{
+            if(isNaN(decVal))decVal=0;
+            code+=`stack.push(${decVal});\n`;
+        }
+    }
+}else if(tok.type==='operator'){
+    if(tok.value==='u-'){
+        code+=`var a=stack.pop();\nstack.push(C.sub(0,a));\n`;
+    }else{
+        code+=`var b=stack.pop(),a=stack.pop();\n`;
+        switch(tok.value){
+            case '+':code+=`stack.push(C.add(a,b));\n`;break;
+            case '-':code+=`stack.push(C.sub(a,b));\n`;break;
+            case '*':code+=`stack.push(C.mul(a,b));\n`;break;
+            case '/':code+=`stack.push(C.div(a,b));\n`;break;
+            case '%':code+=`stack.push(C.mod(a,b));\n`;break;
+            case '^':code+=`stack.push(C.pow(a,b));\n`;break;
+            case '&':code+=`stack.push((a.r??a|0)&(b.r??b|0));\n`;break;
+            case '|':code+=`stack.push((a.r??a|0)|(b.r??b|0));\n`;break;
+            case '⊕':code+=`stack.push((a.r??a|0)^(b.r??b|0));\n`;break;
+            case '<<':code+=`stack.push((a.r??a|0)<<(b.r??b|0));\n`;break;
+            case '>>':code+=`stack.push((a.r??a|0)>>(b.r??b|0));\n`;break;
+        }
+    }
+}else if(tok.type==='function'){
+    if(tok.value==='cond'||tok.value==='if'){
+        code+=`var c=stack.pop(),b=stack.pop(),a=stack.pop();\nstack.push((a.r??a)!=0?b:c);\n`;
+    }else if(tok.value==='max'||tok.value==='min'){
+        code+=`var b=stack.pop(),a=stack.pop();\n`;
+        code+=tok.value==='max'?`stack.push(Math.max(a.r??a,b.r??b));\n`:`stack.push(Math.min(a.r??a,b.r??b));\n`;
+    }else if(tok.value==='clamp'){
+        code+=`var c=stack.pop(),b=stack.pop(),a=stack.pop();\nstack.push(Math.min(Math.max(a.r??a,b.r??b),c.r??c));\n`;
+    }else if(tok.value==='logb'){
+        code+=`var b=stack.pop(),a=stack.pop();\nvar ar=a.r??a, br=b.r??b;\nif(ar<=0||Math.abs(ar)<1e-15)throw new Error('Error matemático: Logaritmo no positivo');\nif(br<=0||Math.abs(br-1)<1e-15||Math.abs(br)<1e-15)throw new Error('Error matemático: Base inválida');\nstack.push(Math.log(ar)/Math.log(br));\n`;
+    }else if(tok.value==='sum'||tok.value==='prod'||tok.value==='sumatoria'||tok.value==='productoria'){
+        throw new Error('Error de sintaxis: sum/prod deben ser la expresion completa');
+    }else if(tok.value==='ini'||tok.value==='cr'){
+        throw new Error('Error de sintaxis: Ini/Cr deben procesarse como bloques completos');
+    }else{
+        code+=`var a=stack.pop();\n`;
+        switch(tok.value){
+            case 'sqrt':code+=`stack.push(C.sqrt(a));\n`;break;
+            case 'sin':code+=`stack.push(C.sin(a));\n`;break;
+            case 'cos':code+=`stack.push(C.cos(a));\n`;break;
+            case 'tan':code+=`stack.push(C.tan(a));\n`;break;
+            case 'ln':code+=`stack.push(C.ln(a));\n`;break;
+            case 'asin':code+=`stack.push(C.asin(a));\n`;break;
+            case 'abs':code+=`var ar=a.r??a,ai=a.i??0; stack.push(Math.sqrt(ar*ar+ai*ai));\n`;break;
+            case 'acos':code+=`var sa=a.r??a;if(Math.abs(sa)>1)throw new Error('Error matemático: acos requiere |x|≤1');stack.push(Math.acos(sa));\n`;break;
+            case 'atan':code+=`stack.push(Math.atan(a.r??a));\n`;break;
+            case 'asec':code+=`var sa=a.r??a;if(Math.abs(sa)<1)throw new Error('Error matemático: asec requiere |x|≥1');stack.push(Math.acos(1/sa));\n`;break;
+            case 'sec':code+=`var sa=a.r??a;if(Math.abs(Math.cos(sa))<1e-15)throw new Error('Error matemático: Sec indefinida');stack.push(1/Math.cos(sa));\n`;break;
+            case 'csc':code+=`var sa=a.r??a;if(Math.abs(Math.sin(sa))<1e-15)throw new Error('Error matemático: Csc indefinida');stack.push(1/Math.sin(sa));\n`;break;
+            case 'cot':code+=`var sa=a.r??a;if(Math.abs(Math.sin(sa))<1e-15)throw new Error('Error matemático: Cot indefinida');stack.push(1/Math.tan(sa));\n`;break;
+            case 'sinh':code+=`stack.push(Math.sinh(a.r??a));\n`;break;
+            case 'cosh':code+=`stack.push(Math.cosh(a.r??a));\n`;break;
+            case 'tanh':code+=`stack.push(Math.tanh(a.r??a));\n`;break;
+            case 'sech':code+=`stack.push(1/Math.cosh(a.r??a));\n`;break;
+            case 'log':code+=`var sa=a.r??a;if(sa<=0)throw new Error('Error matemático: log10 de no positivo');stack.push(Math.log10(sa));\n`;break;
+            case 'floor':code+=`stack.push(Math.floor(a.r??a));\n`;break;
+            case 'ceil':code+=`stack.push(Math.ceil(a.r??a));\n`;break;
+            case 'round':code+=`stack.push(Math.round(a.r??a));\n`;break;
+            case 'sign':code+=`stack.push(Math.sign(a.r??a));\n`;break;
+            case 'gamma':code+=`stack.push(gamma(a.r??a));\n`;break;
+            case 'factorial':code+=`var sa=a.r??a;if(sa<0||sa!==Math.floor(sa))throw new Error('Error matemático: Factorial requiere enteros ≥0');if(sa>170)throw new Error('Error matemático: Overflow de Factorial');stack.push(factorial(sa));\n`;break;
+            default:throw new Error('Error de sintaxis: Funcion desconocida: '+tok.value);
+        }
+    }
+}}
+code+=`return stack[0];\n`;return new Function('x','y',code);}
+
+function evaluateExpression(expr){
+    expr=preprocessExpression(expr);if(expr.trim()==='')return{bin:'0',dec:0,complex:false};
+    const tokens=tokenize(expr,false);
+    const func=compileRPNtoJS(tokens);
+    const rawRes = func(0,0);
+    
+    if (typeof rawRes === 'object' && rawRes.isComplex) {
+        if (Math.abs(rawRes.i) < 1e-14) {
+            return {bin: decimalToBinary(rawRes.r), dec: rawRes.r, complex: false};
+        }
+        return {
+            bin: decimalToBinaryComplex(rawRes.r, rawRes.i),
+            dec: rawRes.r,
+            complex: true,
+            imag: rawRes.i,
+            complexStr: decimalToDecStringComplex(rawRes.r, rawRes.i)
+        };
+    } else {
+        if (isNaN(rawRes) || !isFinite(rawRes)) throw new Error("Error matemático: Resultado no finito");
+        return {bin: decimalToBinary(rawRes), dec: rawRes, complex: false};
+    }
+}
+
+function parseNumberToken(t){
+    if(/^-?[01.]+$/.test(t)&&t.indexOf('.')===t.lastIndexOf('.')){
+        const val=parseBinaryToDecimal(t);
+        if(isNaN(val))throw new Error('Error de sintaxis: Numero binario mal formado: '+t);
+        return val;
+    }
+    const val = parseBinaryToDecimal(t);
+    if(typeof val === 'object') return val;
+    const d=parseFloat(t);return isNaN(d)?NaN:d;
+}
+function parseMatrix(str){str=str.trim();if(str.startsWith('[[')&&str.endsWith(']]')){const inner=str.slice(2,-2).trim();const rows=inner.split('],[');return rows.map(row=>row.split(',').map(c=>parseBinaryToDecimal(c.trim())));}
+if(str.startsWith('[')&&str.endsWith(']')&&!str.startsWith('[[')){const inner=str.slice(1,-1).trim();const rows=inner.split(';');return rows.map(row=>row.split(',').map(c=>parseBinaryToDecimal(c.trim())));}
+return null;}
+function matrixToString(mat){return mat.map(row=>'['+row.map(v=>decimalToBinary(v)).join(',')+']').join(';\n');}
+function matrixToDecString(mat){const dp=settings.decimalPrecision;return mat.map(row=>'['+row.map(v=>Number.isInteger(v)?v:parseFloat(v.toFixed(dp))).join(',')+']').join('\n');}
+function matrixDeterminant(mat){const n=mat.length;if(n===0||mat[0].length!==n)throw new Error('Error de matriz: Matriz no cuadrada para determinante');const a=mat.map(r=>[...r]);let det=1;for(let i=0;i<n;i++){let pivot=i;for(let j=i+1;j<n;j++)if(Math.abs(a[j][i])>Math.abs(a[pivot][i]))pivot=j;if(Math.abs(a[pivot][i])<1e-12)return 0;if(pivot!==i){[a[i],a[pivot]]=[a[pivot],a[i]];det=-det;}
+det*=a[i][i];for(let j=i+1;j<n;j++){const factor=a[j][i]/a[i][i];for(let k=i;k<n;k++)a[j][k]-=factor*a[i][k];}}
+return det;}
+function matrixInverse(mat){const n=mat.length;if(n===0||mat[0].length!==n)throw new Error('Error de matriz: Matriz no cuadrada para inversa');const a=mat.map((r,i)=>[...r,...Array.from({length:n},(_,j)=>i===j?1:0)]);for(let i=0;i<n;i++){let pivot=i;for(let j=i+1;j<n;j++)if(Math.abs(a[j][i])>Math.abs(a[pivot][i]))pivot=j;if(Math.abs(a[pivot][i])<1e-12)throw new Error('Error de matriz: Matriz singular (no invertible)');if(pivot!==i)[a[i],a[pivot]]=[a[pivot],a[i]];const div=a[i][i];for(let j=i;j<2*n;j++)a[i][j]/=div;for(let j=0;j<n;j++){if(j===i)continue;const factor=a[j][i];for(let k=i;k<2*n;k++)a[j][k]-=factor*a[i][k];}}
+return a.map(r=>r.slice(n));}
+function matrixTranspose(mat){return mat[0].map((_,c)=>mat.map(r=>r[c]));}
+function matrixAdd(A,B){if(A.length!==B.length||A[0].length!==B[0].length)throw new Error('Error de matriz: Dimensiones incompatibles para suma');return A.map((r,i)=>r.map((v,j)=>v+B[i][j]));}
+function matrixMultiply(A,B){if(A[0].length!==B.length)throw new Error('Error de matriz: Dimensiones incompatibles para multiplicacion (cols A ≠ rows B)');return A.map(r=>B[0].map((_,j)=>r.reduce((sum,v,k)=>sum+v*B[k][j],0)));}
+function matrixScalarMultiply(k,A){return A.map(r=>r.map(v=>k*v));}
+function matrixPower(A,n){if(n<0)throw new Error('Error de matriz: Potencia negativa no soportada');if(n===0){return A.map((r,i)=>r.map((_,j)=>i===j?1:0));}
+let result=A;for(let i=1;i<n;i++)result=matrixMultiply(result,A);return result;}
+function linearSolve(A,b){const n=A.length;if(n===0||A[0].length!==n)throw new Error('Error de matriz: Matriz A no es cuadrada');if(b.length!==n||(b[0]&&b[0].length&&b[0].length!==1&&b.length!==n)){if(b.length!==n)throw new Error('Error de matriz: Dimensiones inconsistentes entre A y b (solve)');}
+const bCol=b[0]&&Array.isArray(b[0])?b.map(r=>r[0]):b;if(bCol.length!==n)throw new Error('Error de matriz: Vector b debe tener '+n+' elementos');const aug=A.map((row,i)=>[...row,bCol[i]]);for(let i=0;i<n;i++){let pivot=i;for(let j=i+1;j<n;j++)if(Math.abs(aug[j][i])>Math.abs(aug[pivot][i]))pivot=j;if(Math.abs(aug[pivot][i])<1e-14)throw new Error('Error de matriz: Sistema singular o mal condicionado');if(pivot!==i)[aug[i],aug[pivot]]=[aug[pivot],aug[i]];const div=aug[i][i];for(let j=i;j<=n;j++)aug[i][j]/=div;for(let j=0;j<n;j++){if(j===i)continue;const factor=aug[j][i];for(let k=i;k<=n;k++)aug[j][k]-=factor*aug[i][k];}}
+return aug.map(row=>[row[n]]);}
+
+function evaluateDiff(expr){
+    expr=preprocessExpression(expr);const args=parseFunctionArgs(expr,'diff');if(!args||args.length<3||args.length>4)throw new Error('Error de sintaxis: diff requiere: diff(expr, @var, punto, h?)');
+    const[exprStr,varStr,pointStr,hStr=String(settings.diffDefaultH)]=args;let varCode;if(varStr==='@x')varCode=CODE_X;else if(varStr==='@y')varCode=CODE_Y;else if(varStr.startsWith('@'))varCode=varStr.slice(1);else throw new Error('Error de variable: Variable invalida en diff: '+varStr);
+    const point=evaluateExpression(pointStr).dec;const h=hStr?evaluateExpression(hStr).dec:settings.diffDefaultH;
+    const tokens=tokenize(exprStr,false);tokens.forEach(t=>{if(t.type==='variable'&&t.code===varCode)t.code=CODE_X;});
+    const func=compileRPNtoJS(tokens);const fph=func(point+h,0),fmh=func(point-h,0);
+    const deriv_C = C.div(C.sub(fph, fmh), 2*h);
+    if(typeof deriv_C === 'object' && deriv_C.isComplex) {
+        if(Math.abs(deriv_C.i) < 1e-14) return {bin:decimalToBinary(deriv_C.r), dec:deriv_C.r, complex:false};
+        return {bin:decimalToBinaryComplex(deriv_C.r, deriv_C.i), dec:deriv_C.r, complex:true, imag:deriv_C.i, complexStr:decimalToDecStringComplex(deriv_C.r, deriv_C.i)};
+    }
+    if(!isFinite(deriv_C))throw new Error('Error matemático: Derivada indefinida');
+    return{bin:decimalToBinary(deriv_C),dec:deriv_C,complex:false};
+}
+
+function evaluateInt(expr){
+    expr=preprocessExpression(expr);const args=parseFunctionArgs(expr,'int');if(!args||args.length<4||args.length>5)throw new Error('Error de sintaxis: int requiere: int(expr, @var, a, b, n?)');
+    const[exprStr,varStr,aStr,bStr,nStr=String(settings.intDefaultN)]=args;let varCode;if(varStr==='@x')varCode=CODE_X;else if(varStr==='@y')varCode=CODE_Y;else if(varStr.startsWith('@'))varCode=varStr.slice(1);else throw new Error('Error de variable: Variable invalida');
+    const a=evaluateExpression(aStr).dec,b=evaluateExpression(bStr).dec;let n=Math.round(evaluateExpression(nStr).dec);if(n<2||!isFinite(n))n=settings.intDefaultN;if(n%2!==0)n++;
+    const tokens=tokenize(exprStr,false);tokens.forEach(t=>{if(t.type==='variable'&&t.code===varCode)t.code=CODE_X;});
+    const func=compileRPNtoJS(tokens);const h=(b-a)/n;
+    let sum=C.add(func(a,0), func(b,0));
+    for(let i=1;i<n;i++) {
+        let term = C.mul(func(a+i*h,0), i%2===0?2:4);
+        sum = C.add(sum, term);
+    }
+    const integral = C.mul(sum, h/3);
+    if(typeof integral === 'object' && integral.isComplex) {
+        if(Math.abs(integral.i) < 1e-14) return {bin:decimalToBinary(integral.r), dec:integral.r, complex:false};
+        return {bin:decimalToBinaryComplex(integral.r, integral.i), dec:integral.r, complex:true, imag:integral.i, complexStr:decimalToDecStringComplex(integral.r, integral.i)};
+    }
+    if(!isFinite(integral))throw new Error('Error matemático: Integral divergente');
+    return{bin:decimalToBinary(integral),dec:integral,complex:false};
+}
+
+function parseFunctionArgs(expr,funcName){const prefix=funcName+'(';if(!expr.startsWith(prefix)||!expr.endsWith(')'))return null;const inner=expr.slice(prefix.length,-1).trim();const args=[];let depth=0,start=0;for(let i=0;i<inner.length;i++){const c=inner[i];if(c==='('||c==='[')depth++;else if(c===')'||c===']')depth--;else if(c===','&&depth===0){args.push(inner.slice(start,i).trim());start=i+1;}}
+args.push(inner.slice(start).trim());return args;}
+function brentZero(f,a,b){const tol=settings.solveTolerance,maxIter=settings.solveMaxIter;let fa=f(a),fb=f(b);if(fa*fb>=0)return null;let c=a,fc=fa,d=b-a,e=d;for(let iter=0;iter<maxIter;iter++){if(Math.abs(fc)<Math.abs(fb)){[a,b,c]=[b,a,b];[fa,fb,fc]=[fb,fa,fa];}
+const m=(c-b)/2,tolAct=2*1e-15*Math.abs(b)+tol/2;if(Math.abs(m)<=tolAct||Math.abs(fb)<1e-15)return b;if(Math.abs(e)<tolAct||Math.abs(fa)<=Math.abs(fb)){e=d;d=m;}else{let s=fb/fa,p,q;if(c===a){p=2*m*s;q=1-s;}else{q=fa/fc;const r=fb/fc;p=s*(2*m*q*(q-r)-(b-a)*(r-1));q=(q-1)*(r-1)*(s-1);}
+if(p>0)q=-q;p=Math.abs(p);const min1=3*m*q-Math.abs(tolAct*q),min2=Math.abs(e*q);if(2*p<(min1<min2?min1:min2)){e=d;d=p/q;}else{e=d;d=m;}}
+a=b;fa=fb;if(Math.abs(d)>tolAct)b+=d;else b+=Math.sign(m)*tolAct;fb=f(b);if(fb*(fc/Math.abs(fc))>0){c=a;fc=fa;e=d=b-a;}}
+return b;}
+function solveEquation(expr){expr=preprocessExpression(expr);const parts=expr.split('=');if(parts.length!==2)throw new Error('Error de sintaxis: Ecuacion requiere un solo =');const allTokens=[...tokenize(parts[0],true),...tokenize(parts[1],true)];const varsInEq=new Set(allTokens.filter(t=>t.type==='variable').map(t=>t.code));let unknownCode=null;if(varsInEq.size===1)unknownCode=[...varsInEq][0];else{for(const code of varsInEq)if(variables.get(code)==='11111111'){unknownCode=code;break;}
+if(!unknownCode)throw new Error('Error de variable: Define explícitamente la incognita o asigna 11111111');}
+const leftTokens=tokenize(parts[0].trim()),rightTokens=tokenize(parts[1].trim());leftTokens.forEach(t=>{if(t.type==='variable'&&t.code===unknownCode)t.code=CODE_X;});rightTokens.forEach(t=>{if(t.type==='variable'&&t.code===unknownCode)t.code=CODE_X;});const fLeft=compileRPNtoJS(leftTokens),fRight=compileRPNtoJS(rightTokens);function f(x){ let l = fLeft(x,0), r = fRight(x,0); return (l.r??l) - (r.r??r); }
+let a=-1e4,b=1e4,step=1.0,found=false;for(let i=0;i<200;i++){if(f(a)*f(b)<=0){found=true;break;}
+a-=step;b+=step;step*=1.5;}
+if(!found)throw new Error('Error de rango: Intervalo sin cambio de signo para resolver ecuacion');const root=brentZero(f,a,b);if(root===null)throw new Error('Error matemático: Raiz no hallada');return{bin:decimalToBinary(root),dec:root,complex:false};}
+function parseVarDefinition(expr){if(!expr.startsWith('Var(')||!expr.endsWith(')'))return null;const inner=expr.slice(4,-1).trim();let depth=0,colonIndex=-1;for(let i=0;i<inner.length;i++){const c=inner[i];if(c==='('||c==='[')depth++;else if(c===')'||c===']')depth--;else if(c===':'&&depth===0){colonIndex=i;break;}}
+if(colonIndex===-1)return null;const codeStr=inner.slice(0,colonIndex).trim();const valueExpr=inner.slice(colonIndex+1).trim();let codePart=codeStr;if(codeStr==='@x')codePart=CODE_X;else if(codeStr==='@y')codePart=CODE_Y;else if(codeStr.startsWith('@'))codePart=codeStr.slice(1);if(!/^[01]{8}$/.test(codePart))return null;if(valueExpr==='')return null;return{code:codePart,expr:valueExpr};}
+function parseSimpleAssignment(expr){const match=expr.match(/^@([01]{8}|[xy])\s*=\s*(.+)$/);if(!match)return null;let code=match[1];if(code==='x')code=CODE_X;else if(code==='y')code=CODE_Y;return{code,expr:match[2].trim()};}
+let cadRunning=false,stopRequested=false,cadTimerId=null;function updateStopButton(){const btn=document.getElementById('btnStop');if(cadRunning){btn.style.display='inline-block';btn.classList.add('stop');}else{btn.style.display='none';btn.classList.remove('stop');}}
+function executeCADSync(expr){const{instructions,repetitions}=executeCAD(expr);const savedRunning=cadRunning,savedStop=stopRequested;cadRunning=true;stopRequested=false;let lastOutcome=null;const MAX_PASOS=settings.maxCADSteps;if(repetitions*instructions.length>MAX_PASOS)throw new Error('Error de rango: CAD demasiado largo para ejecucion sincronica (>'+MAX_PASOS+' pasos)');for(let r=0;r<repetitions;r++){for(let i=0;i<instructions.length;i++){if(stopRequested)break;lastOutcome=processInstruction(instructions[i]);}
+if(stopRequested)break;}
+cadRunning=savedRunning;stopRequested=savedStop;if(stopRequested)throw new Error('CAD detenido por el usuario');if(!lastOutcome)throw new Error('Error de sintaxis: CAD sin instrucciones');return lastOutcome;}
+function executeCAD(expr){if(!expr.startsWith('CAD(')||!expr.endsWith(')'))throw new Error('Error de sintaxis: Formato CAD invalido');const inner=expr.slice(4,-1).trim();const segments=[];let depth=0,start=0;for(let i=0;i<inner.length;i++){const c=inner[i];if(c==='('||c==='[')depth++;else if(c===')'||c===']')depth--;else if(c===':'&&depth===0){segments.push(inner.slice(start,i).trim());start=i+1;}}
+segments.push(inner.slice(start).trim());if(segments.length===0)throw new Error('Error de sintaxis: CAD sin instrucciones');let repetitions=1;const last=segments[segments.length-1];if(/^\d+$/.test(last)&&segments.length>1){repetitions=parseInt(last,10);if(repetitions<1)repetitions=1;segments.pop();}
+if(segments.length===0)throw new Error('Error de sintaxis: Bloque de instrucciones vacio en CAD');return{instructions:segments,repetitions};}
+function parseIniSections(expr){if(!expr.startsWith('Ini(')||!expr.endsWith(')'))return null;const inner=expr.slice(4,-1).trim();const sections=[];let depth=0,start=0;for(let i=0;i<inner.length;i++){const c=inner[i];if(c==='('||c==='[')depth++;else if(c===')'||c===']')depth--;else if(c===':'&&depth===0){sections.push(inner.slice(start,i).trim());start=i+1;}}
+sections.push(inner.slice(start).trim());return sections.filter(s=>s.length>0);}
+function executeIni(expr){const sections=parseIniSections(expr);if(!sections||sections.length===0)throw new Error('Error de sintaxis: Ini sin secciones validas');let lastOutcome=null;let creatorName=null;const totalSections=sections.length;for(let i=0;i<totalSections;i++){const sec=sections[i];if(sec.startsWith('Var(')&&sec.endsWith(')')){try{const outcome=processInstruction(sec);if(outcome.type==='assign'){lastOutcome=outcome;showToast(`Ini [${i+1}/${totalSections}] Variable definida: @${outcome.code===CODE_X?'x':outcome.code===CODE_Y?'y':outcome.code}`,'info',1500);}else if(outcome.type==='macro'){lastOutcome=outcome;showToast(`Ini [${i+1}/${totalSections}] Macro definida: @${outcome.code}`,'info',1500);}else{lastOutcome=outcome;showToast(`Ini [${i+1}/${totalSections}] Var procesada`,'info',1200);}}catch(e){showToast(`Ini [${i+1}/${totalSections}] Error en Var: ${e.message}`,'error',3000);throw e;}}else if(sec.startsWith('CAD(')&&sec.endsWith(')')){try{const outcome=executeCADSync(sec);lastOutcome=outcome;showToast(`Ini [${i+1}/${totalSections}] CAD ejecutado`,'success',1500);}catch(e){if(e.message.includes('detenido por el usuario')){showToast(`Ini [${i+1}/${totalSections}] CAD detenido por el usuario`,'warning',2000);throw e;}
+showToast(`Ini [${i+1}/${totalSections}] Error en CAD: ${e.message}`,'error',3000);throw e;}}else if(sec.startsWith('Cr(')&&sec.endsWith(')')){creatorName=sec.slice(3,-1).trim();showToast(`Programa creado por: ${creatorName}`,'ini-toast',4000);lastOutcome={type:'ini',creator:creatorName,result:lastOutcome?lastOutcome.result:{bin:'0',dec:0,complex:false}};}else{try{const outcome=processInstruction(sec);lastOutcome=outcome;showToast(`Ini [${i+1}/${totalSections}] Instruccion procesada`,'info',1200);}catch(e){showToast(`Ini [${i+1}/${totalSections}] Error: ${e.message}`,'error',3000);throw e;}}}
+if(creatorName&&lastOutcome&&lastOutcome.type==='ini'){return{type:'ini',creator:creatorName,result:lastOutcome.result};}
+if(!lastOutcome){return{type:'value',result:{bin:'0',dec:0,complex:false}};}
+return lastOutcome;}
+function runCADChain(instructions,repetitions,currentRep=0,currentStep=0){if(stopRequested||currentRep>=repetitions){cadRunning=false;stopRequested=false;updateStopButton();if(currentRep>=repetitions)showToast(`CAD completado (${repetitions} iteraciones)`,'success');else showToast('CAD detenido por el usuario','info');updateDisplay();return;}
+if(currentStep===0&&currentRep===0){cadRunning=true;stopRequested=false;updateStopButton();}
+const instr=instructions[currentStep];try{const outcome=processInstruction(instr);if(outcome.type==='assign'){expressionStr=`@${outcome.code===CODE_X?'x':outcome.code===CODE_Y?'y':outcome.code} = ${outcome.result.bin}`;lastResult=outcome.result;addHistoryEntry(expressionStr,outcome.result.bin,outcome.result.dec,'assign');}else if(outcome.type==='matrix'){expressionStr=matrixToString(outcome.result);lastResult=expressionStr;addHistoryEntry(expressionStr,expressionStr,0,'matrix');}else if(outcome.type==='ini'){expressionStr=`Ini -> Cr(${outcome.creator})`;lastResult=outcome.result;addHistoryEntry(instr,outcome.result.bin,outcome.result.dec,'ini');}else{expressionStr=outcome.result.bin;lastResult=outcome.result;addHistoryEntry(instr,outcome.result.bin,outcome.result.dec,'value');}
+updateDisplay();}catch(e){showToast(`Error en CAD paso ${currentRep+1}.${currentStep+1}: ${e.message}`,'error');cadRunning=false;stopRequested=false;updateStopButton();updateDisplay();return;}
+let nextStep=currentStep+1,nextRep=currentRep;if(nextStep>=instructions.length){nextStep=0;nextRep++;}
+cadTimerId=setTimeout(()=>runCADChain(instructions,repetitions,nextRep,nextStep),10);}
+function parseSumArgs(expr){const idx=expr.indexOf('(');if(idx===-1)throw new Error('Error de sintaxis: Formato invalido para sumatoria/productoria');const inner=expr.slice(idx+1,-1).trim();const args=[];let depth=0,start=0;for(let i=0;i<inner.length;i++){const c=inner[i];if(c==='('||c==='[')depth++;else if(c===')'||c===']')depth--;else if(c===','&&depth===0){args.push(inner.slice(start,i).trim());start=i+1;}}
+args.push(inner.slice(start).trim());if(args.length<4)throw new Error('Error de sintaxis: Sumatoria/Productoria requiere 4 argumentos: expresion, variable, inicio, fin');return args;}
+function evaluateSummation(expr,isProduct){const args=parseSumArgs(expr);const[exprStr,varStr,startStr,endStr]=args;let varCode;if(varStr==='@x')varCode=CODE_X;else if(varStr==='@y')varCode=CODE_Y;else if(varStr.startsWith('@'))varCode=varStr.slice(1);else throw new Error('Error de variable: Variable invalida en suma/producto: '+varStr);const start=Math.round(evaluateExpression(startStr).dec);const end=Math.round(evaluateExpression(endStr).dec);if(start>end)throw new Error('Error de rango: Inicio > Fin en suma/producto');const maxIter=settings.maxSumIterations;if(end-start>maxIter)throw new Error('Error de rango: Demasiadas iteraciones (>'+maxIter+')');const tokens=tokenize(exprStr,false);tokens.forEach(t=>{if(t.type==='variable'&&t.code===varCode)t.code=CODE_X;});const func=compileRPNtoJS(tokens);
+let result=isProduct?1:0;
+for(let i=start;i<=end;i++){
+    const val_C=func(i,0);
+    const val = val_C.r??val_C; // Forzamos escalar en sumatorias basicas
+    if(!isFinite(val))throw new Error('Error matemático: Valor no finito en iteracion '+i);
+    result=isProduct?result*val:result+val;
+}
+if(!isFinite(result))throw new Error('Error matemático: Resultado no finito en suma/producto');return{type:'value',result:{bin:decimalToBinary(result),dec:result,complex:false}};}
+function processInstruction(expr){expr=preprocessExpression(expr);if(expr.startsWith('Σ('))expr='sum'+expr.slice(1);if(expr.startsWith('∏('))expr='prod'+expr.slice(1);const lowerExpr=expr.toLowerCase();if(lowerExpr.startsWith('sum(')||lowerExpr.startsWith('sumatoria('))return evaluateSummation(expr,false);if(lowerExpr.startsWith('prod(')||lowerExpr.startsWith('productoria('))return evaluateSummation(expr,true);if(expr.startsWith('Ini(')&&expr.endsWith(')')){return executeIni(expr);}
+if(expr.startsWith('Var(')){if(!expr.endsWith(')'))throw new Error('Error de sintaxis: Cierre esperado ")")');const parsed=parseVarDefinition(expr);if(!parsed)throw new Error('Error de sintaxis: Asignacion incorrecta. Use Var(@codigo : expresion)');if(parsed.expr.startsWith('CAD(')&&parsed.expr.endsWith(')')){macroVariables.set(parsed.code,parsed.expr);variables.delete(parsed.code);return{type:'macro',code:parsed.code,expr:parsed.expr};}
+let valOutcome=processInstruction(parsed.expr);let res;if(valOutcome.type==='matrix'){res={bin:matrixToString(valOutcome.result),dec:0,complex:false};}else{res=valOutcome.result;}
+variables.set(parsed.code,res.bin);macroVariables.delete(parsed.code);return{type:'assign',code:parsed.code,result:res};}
+if(expr.startsWith('CAD(')&&expr.endsWith(')')){return executeCADSync(expr);}
+const simpleAssign=parseSimpleAssignment(expr);if(simpleAssign){const res=evaluateExpression(simpleAssign.expr);variables.set(simpleAssign.code,res.bin);macroVariables.delete(simpleAssign.code);return{type:'assign',code:simpleAssign.code,result:res};}
+if(expr.startsWith('diff('))return{type:'value',result:evaluateDiff(expr)};if(expr.startsWith('int('))return{type:'value',result:evaluateInt(expr)};if(expr.startsWith('det(')&&expr.endsWith(')')){const inner=expr.slice(4,-1).trim();const mat=parseMatrix(inner);if(!mat)throw new Error('Error de matriz: Formato de matriz invalido para det');const d=matrixDeterminant(mat);return{type:'value',result:{bin:decimalToBinary(d),dec:d,complex:false}};}
+if(expr.startsWith('inv(')&&expr.endsWith(')')){const inner=expr.slice(4,-1).trim();const mat=parseMatrix(inner);if(!mat)throw new Error('Error de matriz: Formato invalido para inv');return{type:'matrix',result:matrixInverse(mat)};}
+if((expr.startsWith('tr(')||expr.startsWith('trans('))&&expr.endsWith(')')){const start=expr.indexOf('(');const inner=expr.slice(start+1,-1).trim();const mat=parseMatrix(inner);if(!mat)throw new Error('Error de matriz: Formato invalido para tr');return{type:'matrix',result:matrixTranspose(mat)};}
+if(expr.startsWith('solve(')&&expr.endsWith(')')){const args=parseFunctionArgs(expr,'solve');if(!args||args.length!==2)throw new Error('Error de sintaxis: solve requiere solve(A, b)');const A=parseMatrix(args[0]);const b=parseMatrix(args[1]);if(!A||!b)throw new Error('Error de matriz: Formato invalido en solve');if(A.length===0||A[0].length!==A.length)throw new Error('Error de matriz: A no cuadrada');const resultMat=linearSolve(A,b);return{type:'matrix',result:resultMat};}
+const matFuncs=['matAdd','matMul','matScalarMul','matPow'];for(const mf of matFuncs){if(expr.startsWith(mf+'(')&&expr.endsWith(')')){const args=parseFunctionArgs(expr,mf);if(!args)throw new Error('Error de sintaxis: Argumentos invalidos en '+mf);let resultMat;if(mf==='matAdd'){const A=parseMatrix(args[0]),B=parseMatrix(args[1]);if(!A||!B)throw new Error('Error de matriz: Formato invalido');resultMat=matrixAdd(A,B);}else if(mf==='matMul'){const A=parseMatrix(args[0]),B=parseMatrix(args[1]);if(!A||!B)throw new Error('Error de matriz: Formato invalido');resultMat=matrixMultiply(A,B);}else if(mf==='matScalarMul'){const kEval=evaluateExpression(args[0]);const A=parseMatrix(args[1]);if(!A)throw new Error('Error de matriz: Formato invalido');resultMat=matrixScalarMultiply(kEval.dec,A);}else if(mf==='matPow'){const A=parseMatrix(args[0]);const nEval=evaluateExpression(args[1]);if(!A)throw new Error('Error de matriz: Formato invalido');resultMat=matrixPower(A,Math.round(nEval.dec));}
+return{type:'matrix',result:resultMat};}}
+if(expr.startsWith('[')&&expr.endsWith(']')){const mat=parseMatrix(expr);if(mat)return{type:'matrix',result:mat};}
+if(expr.includes('=')){const sol=solveEquation(expr);return{type:'value',result:sol};}
+const res=evaluateExpression(expr);return{type:'value',result:res};}
+function updateDisplay(){let displayExpr=expressionStr.replace(/\*/g,'×').replace(/\//g,'÷').replace(/-/g,'−').replace(/@01111000/g,'@x').replace(/@01111001/g,'@y');expressionEl.textContent=displayExpr||'0';displayContainer.classList.remove('error','complex-mode','ini-mode');if(expressionStr.startsWith('Var(')){const parsed=parseVarDefinition(expressionStr+(expressionStr.endsWith(')')?'':')'));if(parsed){try{const res=evaluateExpression(parsed.expr);resultEl.textContent=`→ @${parsed.code} = ${res.bin}`;resultDecEl.textContent=`(Guarda ${res.dec})`;displayContainer.classList.remove('error');return;}catch(e){}}
+resultEl.textContent='...';resultDecEl.textContent='';displayContainer.classList.remove('error');return;}
+if(expressionStr.startsWith('Ini(')){resultEl.textContent='Programa';resultDecEl.textContent='Presiona Resolver para ejecutar';displayContainer.classList.add('ini-mode');return;}
+try{const res=evaluateExpression(expressionStr);if(res.complex){resultEl.textContent=res.bin;resultDecEl.textContent=res.complexStr;displayContainer.classList.add('complex-mode');}else{resultEl.textContent=res.bin;const dp=settings.decimalPrecision;const decDisplay=Number.isInteger(res.dec)?res.dec:parseFloat(res.dec.toFixed(dp));resultDecEl.textContent=`( = ${decDisplay} en decimal )`;displayContainer.classList.remove('error');}}catch(e){displayContainer.classList.add('error');resultEl.textContent='Error';let errorMsg=e.message||'Error desconocido';if(errorMsg.startsWith('Error de sintaxis:'))errorMsg='Sintaxis: '+errorMsg.split(':')[1].trim();else if(errorMsg.startsWith('Error matemático:'))errorMsg='Matemático: '+errorMsg.split(':')[1].trim();else if(errorMsg.startsWith('Error de matriz:'))errorMsg='Matriz: '+errorMsg.split(':')[1].trim();else if(errorMsg.startsWith('Error de variable:'))errorMsg='Variable: '+errorMsg.split(':')[1].trim();else if(errorMsg.startsWith('Error de rango:'))errorMsg='Rango: '+errorMsg.split(':')[1].trim();resultDecEl.textContent=errorMsg;if(lastResult!==null){setTimeout(()=>{displayContainer.classList.remove('error');if(typeof lastResult==='object'&&lastResult.bin){resultEl.textContent=lastResult.bin;resultDecEl.textContent=`( = ${lastResult.dec} )`;}else if(typeof lastResult==='string'){resultEl.textContent=lastResult;resultDecEl.textContent='';}},1200);}}}
+function clearAll(){expressionStr='0';lastResult=null;updateDisplay();}
+function appendToExpression(str){const isOperator=/^[+\-*\/%^&|⊕]|<<|>>$/.test(str);const isSpecial=/^(sin|cos|tan|sec|csc|cot|asin|acos|atan|asec|sinh|cosh|tanh|sech|ln|log|logb|sqrt|abs|diff|int|det|inv|tr|trans|matAdd|matMul|matScalarMul|matPow|solve|Var|CAD|Ini|Cr|cond|if|floor|ceil|round|sign|gamma|factorial|max|min|clamp|sum|prod)\($/.test(str)||str==='π'||str==='e'||str==='['||str===']'||str===','||str===';';if(lastResult!==null&&expressionStr===(typeof lastResult==='object'&&lastResult.bin?lastResult.bin:String(lastResult))){if(isOperator)expressionStr=(typeof lastResult==='object'&&lastResult.bin?lastResult.bin:String(lastResult))+str;else expressionStr=str;lastResult=null;}else{if(expressionStr==='0'){if(isOperator)expressionStr+=str;else if(isSpecial||str==='('||str===')'||str==='.'||str==='"'||str==="'")expressionStr=str;else expressionStr=str;}else{expressionStr+=str;}
+lastResult=null;}
+updateDisplay();}
+function drawPlotAxes(xmin,xmax,ymin,ymax,cw,ch){ctx.clearRect(0,0,cw,ch);ctx.fillStyle='#040805';ctx.fillRect(0,0,cw,ch);const originX=(0-xmin)/(xmax-xmin)*cw,originY=(ymax-0)/(ymax-ymin)*ch;ctx.strokeStyle='rgba(134,239,172,0.15)';ctx.lineWidth=1;if(originX>=0&&originX<=cw){ctx.beginPath();ctx.moveTo(originX,0);ctx.lineTo(originX,ch);ctx.stroke();}
+if(originY>=0&&originY<=ch){ctx.beginPath();ctx.moveTo(0,originY);ctx.lineTo(cw,originY);ctx.stroke();}
+ctx.fillStyle='#5f806a';ctx.font='10px "Inconsolata", monospace';ctx.fillText(xmin.toFixed(1),5,originY>15?originY-5:15);ctx.fillText(xmax.toFixed(1),cw-30,originY>15?originY-5:15);ctx.fillText(ymax.toFixed(1),originX+5,15);ctx.fillText(ymin.toFixed(1),originX+5,ch-5);}
+function doPlot(){resizeCanvas();let eqStr=document.getElementById('plotEquation').value.trim();if(!eqStr){showToast('Ecuacion requerida.','error');return;}
+eqStr=preprocessExpression(eqStr);eqStr=eqStr.replace(/@x/g,'@'+CODE_X).replace(/@y/g,'@'+CODE_Y);const xmin=parseFloat(document.getElementById('plotXmin').value);const xmax=parseFloat(document.getElementById('plotXmax').value);const ymin=parseFloat(document.getElementById('plotYmin').value);const ymax=parseFloat(document.getElementById('plotYmax').value);if(xmin>=xmax||ymin>=ymax){showToast('Error de rango: Geometria invalida.','error');return;}
+const parts=eqStr.split('=');if(parts.length!==2){showToast('Error de sintaxis: "=" requerido.','error');return;}
+const cw=plotCanvas.width,ch=plotCanvas.height;drawPlotAxes(xmin,xmax,ymin,ymax,cw,ch);try{const leftFunc=compileRPNtoJS(tokenize(parts[0].trim(),false));const rightFunc=compileRPNtoJS(tokenize(parts[1].trim(),false));const isExplicitY=/^\s*@01111001\s*$/.test(parts[0]);if(isExplicitY){ctx.beginPath();ctx.strokeStyle='#4ade80';ctx.lineWidth=2;let first=true;for(let px=0;px<cw;px++){const x=xmin+(px/cw)*(xmax-xmin),y_res=rightFunc(x,0);const y=typeof y_res==='object'?(Math.abs(y_res.i)<1e-12?y_res.r:NaN):y_res;if(isFinite(y)){const py=ch-((y-ymin)/(ymax-ymin))*ch;if(first){ctx.moveTo(px,py);first=false;}else ctx.lineTo(px,py);}else first=true;}
+ctx.stroke();}else{const imgData=ctx.getImageData(0,0,cw,ch),data=imgData.data;const threshold=(Math.abs(xmax-xmin)/cw)*1.5;for(let py=0;py<ch;py++){const y=ymax-(py/ch)*(ymax-ymin);for(let px=0;px<cw;px++){const x=xmin+(px/cw)*(xmax-xmin);const l_res=leftFunc(x,y),r_res=rightFunc(x,y);const l=typeof l_res==='object'?(Math.abs(l_res.i)<1e-12?l_res.r:NaN):l_res;const r=typeof r_res==='object'?(Math.abs(r_res.i)<1e-12?r_res.r:NaN):r_res;if(isFinite(l)&&isFinite(r)&&Math.abs(l-r)<threshold){const idx=(py*cw+px)*4;data[idx]=74;data[idx+1]=222;data[idx+2]=128;data[idx+3]=255;}}}
+ctx.putImageData(imgData,0,0);}}catch(e){showToast('Error Plot: '+e.message,'error');}}
+function exportPlotPNG(){resizeCanvas();const eqStr=document.getElementById('plotEquation').value.trim();const sanitizedEq=eqStr.replace(/[^a-zA-Z0-9@_=()+-\/*\s]/g,'_').substring(0,40);const timestamp=new Date().toISOString().replace(/[:.]/g,'-').slice(0,19);const filename=`grafico_${sanitizedEq}_${timestamp}.png`;const dataURL=plotCanvas.toDataURL('image/png');const a=document.createElement('a');a.href=dataURL;a.download=filename;document.body.appendChild(a);a.click();document.body.removeChild(a);showToast('Grafico exportado como PNG','success',2500);}
+document.getElementById('btn1').addEventListener('click',()=>appendToExpression('1'));document.getElementById('btn0').addEventListener('click',()=>appendToExpression('0'));document.getElementById('btnDot').addEventListener('click',()=>appendToExpression('.'));document.getElementById('btnLeftParen').addEventListener('click',()=>appendToExpression('('));document.getElementById('btnRightParen').addEventListener('click',()=>appendToExpression(')'));document.getElementById('btnAdd').addEventListener('click',()=>appendToExpression('+'));document.getElementById('btnSubtract').addEventListener('click',()=>appendToExpression('-'));document.getElementById('btnMultiply').addEventListener('click',()=>appendToExpression('*'));document.getElementById('btnDivide').addEventListener('click',()=>appendToExpression('/'));document.getElementById('btnPower').addEventListener('click',()=>appendToExpression('^'));document.getElementById('btnMod').addEventListener('click',()=>appendToExpression('%'));document.getElementById('btnSqrt').addEventListener('click',()=>appendToExpression('sqrt('));document.getElementById('btnAbs').addEventListener('click',()=>appendToExpression('abs('));document.getElementById('btnClear').addEventListener('click',clearAll);document.getElementById('btnLBracket').addEventListener('click',()=>appendToExpression('['));document.getElementById('btnRBracket').addEventListener('click',()=>appendToExpression(']'));document.getElementById('btnComma').addEventListener('click',()=>appendToExpression(','));document.getElementById('btnSemicolon').addEventListener('click',()=>appendToExpression(';'));document.getElementById('btnDiff').addEventListener('click',()=>appendToExpression('diff('));document.getElementById('btnInt').addEventListener('click',()=>appendToExpression('int('));document.getElementById('btnDet').addEventListener('click',()=>appendToExpression('det('));document.getElementById('btnInv').addEventListener('click',()=>appendToExpression('inv('));document.getElementById('btnTrans').addEventListener('click',()=>appendToExpression('tr('));document.getElementById('btnMatMul').addEventListener('click',()=>appendToExpression('matMul('));document.getElementById('btnSolve').addEventListener('click',()=>appendToExpression('solve('));document.getElementById('btnCad').addEventListener('click',()=>appendToExpression('CAD('));document.getElementById('btnIni').addEventListener('click',()=>appendToExpression('Ini('));document.getElementById('btnCr').addEventListener('click',()=>appendToExpression('Cr('));document.getElementById('btnBackspace').addEventListener('click',()=>{if(expressionStr.length<=1)expressionStr='0';else expressionStr=expressionStr.slice(0,-1);lastResult=null;updateDisplay();});const bindingsMap={'btnVar':'Var(','btnColon':':','btnEqualSign':'=','btnAt':'@','btnAnd':'&','btnOr':'|','btnXor':'⊕','btnShl':'<<','btnShr':'>>'};Object.keys(bindingsMap).forEach(id=>document.getElementById(id).addEventListener('click',()=>appendToExpression(bindingsMap[id])));['btnSin','btnCos','btnTan','btnSec','btnCsc','btnCot','btnAsin','btnAcos','btnAtan','btnAsec','btnSinh','btnCosh','btnTanh','btnSech','btnLn','btnLog','btnLogb'].forEach(id=>document.getElementById(id).addEventListener('click',()=>appendToExpression(id.replace('btn','').toLowerCase()+'(')));document.getElementById('btnPi').addEventListener('click',()=>appendToExpression('π'));document.getElementById('btnE').addEventListener('click',()=>appendToExpression('e'));document.getElementById('btnSaveVars').addEventListener('click',saveVariables);document.getElementById('btnLoadVars').addEventListener('click',loadVariables);document.getElementById('btnVars').addEventListener('click',()=>{renderVarsModal();document.getElementById('varsOverlay').classList.add('active');});document.getElementById('btnStop').addEventListener('click',()=>{if(cadRunning){stopRequested=true;if(cadTimerId)clearTimeout(cadTimerId);cadRunning=false;updateStopButton();showToast('Deteniendo CAD...','info');}});document.getElementById('btnQuote').addEventListener('click',()=>appendToExpression('"'));document.getElementById('btnApos').addEventListener('click',()=>appendToExpression("'"));document.getElementById('btnIf').addEventListener('click',()=>appendToExpression('if('));document.getElementById('btnDescargarIni').addEventListener('click',downloadIni);document.getElementById('btnCargarIni').addEventListener('click',uploadIni);document.getElementById('btnProd').addEventListener('click',()=>appendToExpression('prod('));document.getElementById('btnFloor').addEventListener('click',()=>appendToExpression('floor('));document.getElementById('btnCeil').addEventListener('click',()=>appendToExpression('ceil('));document.getElementById('btnRound').addEventListener('click',()=>appendToExpression('round('));document.getElementById('btnMax').addEventListener('click',()=>appendToExpression('max('));document.getElementById('btnMin').addEventListener('click',()=>appendToExpression('min('));document.getElementById('btnClamp').addEventListener('click',()=>appendToExpression('clamp('));document.getElementById('btnSign').addEventListener('click',()=>appendToExpression('sign('));document.getElementById('btnGamma').addEventListener('click',()=>appendToExpression('gamma('));document.getElementById('btnFact').addEventListener('click',()=>appendToExpression('factorial('));document.getElementById('btnSum').addEventListener('click',()=>appendToExpression('sum('));document.getElementById('btnEquals').addEventListener('click',()=>{const expr=expressionStr.trim();if(expr.startsWith('Ini(')){if(cadRunning){showToast('Ya hay una cadena en ejecucion. Usa STOP primero.','error');return;}
+try{const outcome=executeIni(expr);if(outcome.type==='ini'){expressionStr=`Ini -> Cr(${outcome.creator})`;lastResult=outcome.result;resultEl.textContent=outcome.result.bin;const dp=settings.decimalPrecision;const decDisplay=Number.isInteger(outcome.result.dec)?outcome.result.dec:parseFloat(outcome.result.dec.toFixed(dp));resultDecEl.textContent=`( = ${decDisplay} ) | Creador: ${outcome.creator}`;displayContainer.classList.add('ini-mode');displayContainer.classList.remove('error');addHistoryEntry(expr,outcome.result.bin,outcome.result.dec,'ini');}else if(outcome.type==='assign'){expressionStr=`@${outcome.code===CODE_X?'x':outcome.code===CODE_Y?'y':outcome.code} = ${outcome.result.bin}`;lastResult=outcome.result;updateDisplay();addHistoryEntry(expressionStr,outcome.result.bin,outcome.result.dec,'assign');}else if(outcome.type==='matrix'){expressionStr=matrixToString(outcome.result);lastResult=expressionStr;resultEl.textContent=expressionStr;resultDecEl.textContent=matrixToDecString(outcome.result);displayContainer.classList.remove('error');addHistoryEntry(expr,expressionStr,0,'matrix');}else{expressionStr=outcome.result.bin;lastResult=outcome.result;updateDisplay();addHistoryEntry(expr,outcome.result.bin,outcome.result.dec,'value');}
+showToast('Programa Ini ejecutado correctamente.','success',2500);}catch(e){displayContainer.classList.add('error');resultEl.textContent='Error';let errorMsg=e.message||'Error desconocido';if(errorMsg.startsWith('Error de sintaxis:'))errorMsg='Sintaxis: '+errorMsg.split(':')[1].trim();else if(errorMsg.startsWith('Error matemático:'))errorMsg='Matemático: '+errorMsg.split(':')[1].trim();else if(errorMsg.startsWith('Error de matriz:'))errorMsg='Matriz: '+errorMsg.split(':')[1].trim();else if(errorMsg.startsWith('Error de variable:'))errorMsg='Variable: '+errorMsg.split(':')[1].trim();else if(errorMsg.startsWith('Error de rango:'))errorMsg='Rango: '+errorMsg.split(':')[1].trim();resultDecEl.textContent=errorMsg;expressionStr='0';lastResult=null;setTimeout(()=>{displayContainer.classList.remove('error');updateDisplay();},1800);showToast('Error en Ini: '+e.message,'error',3500);}
+return;}
+if(expr.startsWith('CAD(')){if(cadRunning){showToast('Ya hay una cadena en ejecucion. Usa STOP primero.','error');return;}try{const{instructions,repetitions}=executeCAD(expr);runCADChain(instructions,repetitions);}catch(e){showToast('Error en CAD: '+e.message,'error');}return;}
+try{const outcome=processInstruction(expr);if(outcome.type==='assign'){expressionStr=`@${outcome.code===CODE_X?'x':outcome.code===CODE_Y?'y':outcome.code} = ${outcome.result.bin}`;lastResult=outcome.result;updateDisplay();addHistoryEntry(expressionStr,outcome.result.bin,outcome.result.dec,'assign');showToast(`Mutado: @${outcome.code===CODE_X?'x':outcome.code===CODE_Y?'y':outcome.code}`,'success');}else if(outcome.type==='macro'){expressionStr=`Macro @${outcome.code} = ${outcome.expr}`;resultEl.textContent='Macro guardada';resultDecEl.textContent=outcome.expr;lastResult=null;updateDisplay();addHistoryEntry(expressionStr,'Macro',0,'macro');showToast(`Macro @${outcome.code} definida`,'success');}else if(outcome.type==='matrix'){const mat=outcome.result;expressionStr=matrixToString(mat);lastResult=expressionStr;resultEl.textContent=expressionStr;resultDecEl.textContent=matrixToDecString(mat);displayContainer.classList.remove('error');addHistoryEntry(expr,expressionStr,0,'matrix');}else{if(outcome.result.complex){expressionStr=outcome.result.bin;lastResult=outcome.result;resultEl.textContent=outcome.result.bin;resultDecEl.textContent=outcome.result.complexStr;displayContainer.classList.add('complex-mode');addHistoryEntry(expr,outcome.result.bin,outcome.result.dec,'complex');}else{expressionStr=outcome.result.bin;lastResult=outcome.result;updateDisplay();addHistoryEntry(expr,outcome.result.bin,outcome.result.dec,'value');}}}catch(e){displayContainer.classList.add('error');resultEl.textContent='Error';let errorMsg=e.message||'Error desconocido';if(errorMsg.startsWith('Error de sintaxis:'))errorMsg='Sintaxis: '+errorMsg.split(':')[1].trim();else if(errorMsg.startsWith('Error matemático:'))errorMsg='Matemático: '+errorMsg.split(':')[1].trim();else if(errorMsg.startsWith('Error de matriz:'))errorMsg='Matriz: '+errorMsg.split(':')[1].trim();else if(errorMsg.startsWith('Error de variable:'))errorMsg='Variable: '+errorMsg.split(':')[1].trim();else if(errorMsg.startsWith('Error de rango:'))errorMsg='Rango: '+errorMsg.split(':')[1].trim();resultDecEl.textContent=errorMsg;expressionStr='0';lastResult=null;setTimeout(()=>{displayContainer.classList.remove('error');updateDisplay();},1500);}});document.getElementById('iniFileInput').addEventListener('change',function(e){const file=e.target.files[0];if(file)handleIniFileUpload(file);this.value='';});const modalOverlay=document.getElementById('modalOverlay'),manualOverlay=document.getElementById('manualOverlay'),varsOverlay=document.getElementById('varsOverlay'),histOverlay=document.getElementById('histOverlay'),settingsOverlay=document.getElementById('settingsOverlay');document.getElementById('btnPlot').addEventListener('click',()=>{let eq=expressionStr;if(eq.includes('=')&&!eq.startsWith('Var(')){document.getElementById('plotEquation').value=eq.replace(/@01111000/g,'@x').replace(/@01111001/g,'@y');}
+modalOverlay.classList.add('active');setTimeout(()=>{resizeCanvas();if(document.getElementById('plotEquation').value.includes('='))doPlot();},150);});document.getElementById('btnManualDoc').addEventListener('click',()=>manualOverlay.classList.add('active'));document.getElementById('btnSettingsBadge').addEventListener('click',()=>{applySettingsToUI();settingsOverlay.classList.add('active');});document.getElementById('modalClose').addEventListener('click',()=>modalOverlay.classList.remove('active'));document.getElementById('manualClose').addEventListener('click',()=>manualOverlay.classList.remove('active'));document.getElementById('varsClose').addEventListener('click',()=>varsOverlay.classList.remove('active'));document.getElementById('histClose').addEventListener('click',()=>histOverlay.classList.remove('active'));document.getElementById('settingsClose').addEventListener('click',()=>settingsOverlay.classList.remove('active'));[modalOverlay,manualOverlay,varsOverlay,histOverlay,settingsOverlay].forEach(overlay=>{overlay.addEventListener('click',function(e){if(e.target===overlay)overlay.classList.remove('active');});});document.getElementById('btnSettingsSave').addEventListener('click',()=>{try{collectSettingsFromUI();saveSettings();applySettingsToUI();showToast('Ajustes guardados.','settings-toast',2500);settingsOverlay.classList.remove('active');updateDisplay();}catch(e){showToast('Error en ajustes: '+e.message,'error',3000);}});document.getElementById('btnSettingsReset').addEventListener('click',()=>{if(confirm('Restaurar predeterminados?')){settings={...DEFAULTS};saveSettings();applySettingsToUI();showToast('Ajustes restaurados.','settings-toast',2500);updateDisplay();}});document.getElementById('btnHistBadge').addEventListener('click',()=>{renderHistModal();histOverlay.classList.add('active');});document.getElementById('btnHist').addEventListener('click',()=>{renderHistModal();histOverlay.classList.add('active');});document.getElementById('btnHistRefresh').addEventListener('click',()=>{renderHistModal();showToast('Historial refrescado.','info',1200);});document.getElementById('btnHistClearAll').addEventListener('click',()=>{if(confirm('Eliminar todo el historial?')){clearHistory();renderHistModal();}});document.getElementById('btnVarsRefresh').addEventListener('click',()=>{renderVarsModal();showToast('Variables refrescadas.','info',1200);});document.getElementById('btnVarsClearAll').addEventListener('click',()=>{if(confirm('Eliminar todas las variables? @x y @y se reiniciaran a 0.')){variables.clear();macroVariables.clear();variables.set(CODE_X,'0');variables.set(CODE_Y,'0');renderVarsModal();updateDisplay();showToast('Variables eliminadas.','info');}});document.getElementById('btnGraficar').addEventListener('click',doPlot);document.getElementById('btnExportPNG').addEventListener('click',exportPlotPNG);document.getElementById('btnUsarDisplay').addEventListener('click',()=>{let expr=expressionStr;if(expr!=='0'&&expr!==''&&!expr.includes('=')){document.getElementById('plotEquation').value='@y = '+expr.replace(/@01111000/g,'@x');}
+doPlot();});['btnInsertX','btnInsertY'].forEach(id=>document.getElementById(id).addEventListener('click',()=>{const input=document.getElementById('plotEquation');const char=id==='btnInsertX'?'@x':'@y';input.setRangeText(char,input.selectionStart,input.selectionEnd,'end');input.focus();}));document.getElementById('btnVarsDownload').addEventListener('click',downloadVarsAsIni);document.getElementById('btnVarsUpload').addEventListener('click',uploadVarsFromIni);document.getElementById('btnHistDownload').addEventListener('click',downloadHistAsIni);document.getElementById('btnHistUpload').addEventListener('click',uploadHistFromIni);document.getElementById('varsFileInput').addEventListener('change',function(e){const file=e.target.files[0];if(file)handleVarsFileUpload(file);this.value='';});document.getElementById('histFileInput').addEventListener('change',function(e){const file=e.target.files[0];if(file)handleHistFileUpload(file);this.value='';});
+
+// INYECCIÓN LÓGICA ACORDEÓN
+document.querySelectorAll('.accordion-header').forEach(header => {
+  header.addEventListener('click', () => {
+    const parent = header.parentElement;
+    parent.classList.toggle('active');
+  });
+});
+
+loadSettings();loadHistory();clearAll();loadVariables();renderVarsModal();renderHistModal();})();
+</script>
+</body>
+</html>
