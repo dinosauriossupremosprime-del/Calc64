@@ -1,0 +1,184 @@
+NOTA : CALCULADORA BINARIA 2¹⁶_IV:8
+===========================================================================================
+
+A1. VISIÓN GENERAL DE LA ARQUITECTURA
+
+El proyecto es una Single Page Application (SPA) escrita en HTML/CSS/JS puro, sin frameworks externos (salvo la librería Decimal.js para precisión arbitraria). Su estructura se divide en:
+
+- Interfaz de usuario: Botones organizados en acordeones (aritmética, trigonometría, matrices, programación). Pantalla de display doble (expresión + resultado).
+- Motor de evaluación: Convierte expresiones en tokens, luego a código JavaScript mediante RPN (notación polaca inversa), y finalmente evalúa con soporte complejo.
+- Módulos especializados: Trigonometría, hiperbólicas, logaritmos, derivadas/integrales, matrices, operadores bit a bit, resolución de ecuaciones, sumatorias, bucles y condicionales.
+- Gestión de estado: Variables (@code de 8 bits), macros (ejecución diferida con CAD), historial de operaciones, ajustes configurables y persistencia en localStorage.
+- Componentes visuales: Gráficos en canvas, animación "Matrix" al inicio, modales (manual, variables, historial, ajustes), notificaciones tipo toast.
+
+A2. FLUJO DE EVALUACIÓN DE UNA EXPRESIÓN
+
+Cuando el usuario pulsa "=" (Resolver/Ejecutar) o escribe una asignación, el código sigue estos pasos:
+
+1. Se toma la expresión en pantalla.
+2. Se verifica si es un bloque especial (Ini/CAD/Mie/If). Si es así, se deriva al procesador de bloques.
+3. Si no, se realiza un preprocesamiento que expande las comillas condicionales (sintaxis "valor1 ' cond ' valor2").
+4. Se tokeniza la expresión (léxico).
+5. Se compila a RPN (notación polaca inversa) mediante el algoritmo shunting-yard.
+6. Se genera una función JavaScript dinámicamente.
+7. Se evalúa usando Decimal.js y operaciones con números complejos.
+8. El resultado se convierte a binario (parte entera + fraccionaria) y se muestra en el display, actualizando también la parte decimal entre paréntesis.
+
+A2.1 Tokenización (función tokenize)
+
+- Reconoce números: cadenas de '0' y '1' con un punto opcional.
+- Operadores: + - * / ^ % & | ⊕ << >>
+- Paréntesis ( ), corchetes [ ], comas , punto y coma ;
+- Variables: @ seguido de 8 bits, o los alias @x (01111000) y @y (01111001).
+- Constantes: π, e, i.
+- Funciones: sin, cos, tan, ln, log, sqrt, abs, diff, int, det, inv, tr, solve, sum, prod, etc.
+- Signo negativo unario (u-) cuando corresponde.
+
+A2.2 Conversión a RPN (shunting-yard)
+
+Los tokens se ordenan en una cola de salida usando una pila de operadores, respetando precedencia y asociatividad. Las funciones y paréntesis se manejan adecuadamente.
+
+A2.3 Compilación a código JS (compileRPNtoJS)
+
+Se genera dinámicamente una función JavaScript que recibe (x, y) (para variables libres). Cada token se traduce a operaciones sobre objetos Decimal o complejos {r, i, isComplex}. Las operaciones bit a bit convierten a entero y aplican máscara según bitWidth (8/16/32 bits). Las funciones trigonométricas/hiperbólicas usan versiones complejas (cxSin, cxExp, etc.).
+
+A2.4 Evaluación con complejos
+
+Si el resultado es complejo (parte imaginaria no nula), se muestra como (binario_real, binario_imag) y su equivalente decimal con i. Todas las funciones (sin, ln, sqrt, pow, etc.) están implementadas sobre complejos (fórmulas de Euler, logaritmo complejo, etc.).
+
+A3. MANEJO DE NÚMEROS Y PRECISIÓN
+
+- Representación interna: Decimal.js con precisión configurable (por defecto 50 dígitos decimales).
+- Conversión binario ↔ decimal:
+  * parseBinaryToDecimal: recorre parte entera (potencias de 2) y fraccionaria (potencias negativas). Soporta números complejos (formato (real, imag)).
+  * decimalToBinary: extrae parte entera (.toBinary()) y parte fraccionaria multiplicando por 2 sucesivamente hasta fracBits (por defecto 16 bits). Maneja redondeo.
+- Límites: Los números pueden tener hasta 64 bits fraccionarios (ajustable). El rango de enteros no está limitado más allá de la precisión de Decimal.js.
+
+A4. TIPOS DE DATOS ESPECIALES
+
+A4.1 Matrices
+
+- Sintaxis: [1,10;11,100] o [[1,10],[11,100]].
+- Operaciones: det, inv, tr (transpuesta), matAdd, matMul, matScalarMul, matPow, solve(A, b) (resolución de sistemas lineales).
+- Internamente se almacenan como arrays de arrays de Decimal. Los resultados se muestran en formato binario por filas.
+
+A4.2 Variables y Macros
+
+- Variables: @codigo8bits = expresión. Se evalúa inmediatamente y guarda el resultado en binario.
+- Macros: cuando el valor asignado comienza con CAD( ... ), se almacena la cadena literal. Al invocar @codigo se ejecuta la macro en el momento.
+- Predefinidas: @x y @y (para gráficos y derivadas). Su código binario es fijo.
+
+A4.3 Constantes
+
+- π: Decimal.acos(-1)
+- e: decExp(1) (exponencial)
+- i: cx(0,1) (unidad imaginaria)
+
+A5. BLOQUES DE PROGRAMACIÓN (CAD / Ini / Mie / If)
+
+El código implementa un mini-lenguaje de scripting dentro de la calculadora.
+
+A5.1 CAD (Cadena de Ejecución)
+
+- Formato: CAD(inst1 : inst2 : ... : repeticiones)
+- Ejecuta secuencialmente cada instrucción (asignaciones, expresiones, etc.).
+- Soporte para ejecución sincrónica con límite de pasos y timeout. Botón STOP para interrumpir.
+
+A5.2 Ini (Programa)
+
+- Formato: Ini(sección1 : sección2 : ... : Cr(autor))
+- Las secciones pueden ser:
+  * Var(@code : expr) → define variable inicial.
+  * CAD(...) → ejecuta cadena.
+  * Mie(...) → bucle while.
+  * If(...) → bloque condicional.
+  * Expresiones sueltas.
+- El programa muestra notificaciones de progreso y al final indica el creador.
+
+A5.3 Mie (While)
+
+- Formato: Mie(condicion : instruccion1 : instruccion2 : ...)
+- Ejecuta las instrucciones mientras la condición sea verdadera (distinta de 0, tanto real como compleja).
+- Límite de iteraciones controlado por maxCADSteps (por defecto 10000) y timeout global.
+
+A5.4 If (Bloque condicional)
+
+- Formato: If(condicion : instruccion_verdadero : instruccion_falso)
+- A diferencia del operador ternario if(,,), este solo evalúa la rama seleccionada, útil para prevenir efectos secundarios no deseados.
+
+A6. FUNCIONES MATEMÁTICAS AVANZADAS
+------------------------------------
+| Categoría       | Funciones implementadas (complejas)               |
+|-----------------|---------------------------------------------------|
+| Trigonométricas | sin, cos, tan, sec, csc, cot                      |
+| Inversas        | asin, acos, atan, asec                            |
+| Hiperbólicas    | sinh, cosh, tanh, sech                            |
+| Logaritmos      | ln, log (base 10), logb(expr, base)               |
+| Raíces y valor  | sqrt, abs                                         |
+| Redondeo        | floor, ceil, round, sign                          |
+| Especiales      | gamma (Euler), factorial (entero >=0, <=170)      |
+| Extremos        | max, min, clamp                                   |
+| Cálculo         | diff(expr, @var, punto, h?) (derivada numérica)   |
+|                 | int(expr, @var, a, b, n?) (integral Simpson)      |
+| Sumatorias      | sum(expr, @var, inicio, fin), prod (productoria)  |
+
+Nota: Todas las funciones aceptan argumentos complejos y devuelven resultados complejos cuando corresponde (ej: sqrt(-1) = i).
+
+A7. GRÁFICOS EN EL PLANO CARTESIANO
+
+- Entrada: Ecuación con @x y @y, ej: @y = sin(@x) o implícita @x^2 + @y^2 = 1.
+- Motor de renderizado:
+  1. Se parsea la ecuación en dos funciones (lado izquierdo y derecho).
+  2. Para modo explícito (@y = ...): evalúa la función para cada x y traza línea.
+  3. Para modo implícito: recorre cada píxel, calcula |left - right| y dibuja puntos si está por debajo de un umbral.
+- Controles: Rango X/Y, exportar PNG, usar la expresión actual del display.
+
+A8. PERSISTENCIA Y AJUSTES
+
+A8.1 Almacenamiento local
+
+- binCalculatorSettingsV3: configuración de usuario (bits fraccionarios, precisión, timeout, modo ángulo, etc.).
+- binCalculatorVarsVerde10: variables y macros (values y macros).
+- binCalculatorHistoryVerde10: historial de operaciones (expresión, resultado binario/decimal, timestamp).
+
+A8.2 Ajustes configurables
+
+- Bits fraccionarios (4–64)
+- Precisión interna Decimal.js (20–200 dígitos)
+- Modo ángulo (radianes/grados)
+- Ancho de bits para operadores bit a bit (8/16/32)
+- Límites: iteraciones suma/producto, pasos CAD, timeout, profundidad de macros
+- Confirmación de limpieza, animaciones
+
+A9. MANEJO DE ERRORES Y SEGURIDAD
+
+- Validación sintáctica: El tokenizador lanza errores descriptivos (paréntesis no balanceados, números mal formados, variables no definidas).
+- Errores matemáticos: División por cero, logaritmo de cero/negativo (en reales), matrices singulares, factorial fuera de rango.
+- Timeouts: Cada operación respeta executionTimeout (default 10s) para evitar bucles infinitos.
+- Botón STOP: Interrumpe ejecuciones de CAD/Mie/Ini mediante una variable global stopRequested.
+- Mecanismo de expansión de macros: Profundidad máxima ajustable para prevenir recursión infinita.
+
+A10. ILUSTRACIÓN DEL FLUJO DE INTERFAZ
+
+Secuencia típica:
+
+[Usuario] -> [Click en botón] -> appendToExpression(str) -> updateDisplay()
+[Pulsa "="] -> processInstruction(expressionStr)
+  - Si es bloque especial (Ini/CAD/Mie/If): ejecución paso a paso con parada/tiempo.
+  - Si es expresión normal: evaluateExpression() -> Tokenizar -> Compilar -> Evaluar -> Resultado (real/complejo/matriz)
+Actualizar variables y display. Guardar en historial.
+
+A11. EJEMPLO PRÁCTICO DE USO
+
+Entrada: @01000001 = 1010   (asigna 10 decimal a la variable de código 01000001)
+Luego: @01000001 * 10        (multiplica por 2 decimal) -> resultado 10100 (binario) = 20 decimal.
+
+Programa Ini:
+Ini(
+  Var(@x : 0) : 
+  Mie(@x < 1010 : @x = @x + 1) : 
+  Cr(Ejemplo)
+)
+Incrementa @x desde 0 hasta 10 (1010 binario) y muestra el creador.
+
+Gráfico implícito: Ecuación @x^2 + @y^2 = 100 dibuja una circunferencia de radio 10.
