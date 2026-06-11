@@ -1,4 +1,4 @@
-NOTA : CALCULADORA BINARIA 2¹⁶_IV:8
+NOTA : CALCULADORA BINARIA 2¹⁶_IV:8 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICo2OPdqOg/DHUNc0ljMO+D1B/uEl2D7scQli3ixJLd3 mi-laptop-personal
 ===========================================================================================
 
 A1. VISIÓN GENERAL DE LA ARQUITECTURA
