@@ -1,0 +1,2 @@
+Es una Calculadora que funciona usando únicamente numeros en binario, utiliza decimal.js para las constantes y el manejo de algunas variables, esta todo contenido en un solo script, no necesita de internet para funcionar.
+-En caso de compilar a web app plot tiende a fallar en esos entornos, recomendable usar en firefox para el correcto renderizado de funciones.
